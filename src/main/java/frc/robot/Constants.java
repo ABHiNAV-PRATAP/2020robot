@@ -16,4 +16,18 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    // Drivetrain Motor Ports
+    public static int kLeftDriveMasterPort = 0;
+    public static int kLeftDriveSlavePort = 1;
+    public static int kRightDriveMasterPort = 2;
+    public static int kRightDriveSlavePort = 3;
+
+    // OI
+    public static int kDriveJoystickPort = 0;
+
+    // Drivetrain Control
+    public static double kDriveMaxAxis = 1;
+    public static double kDriveMinAxis = 1;
+    public static double kDriveLowRange = 0.2;
+    public static double kDriveHighRange = 1;
 }
