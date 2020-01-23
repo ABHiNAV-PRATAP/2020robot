@@ -43,9 +43,9 @@ public class ArcadeDrive extends CommandBase {
   public void execute() {
     double throttle = throttleSupplier.getAsDouble();
     double turn = turnSupplier.getAsDouble();
-    double acceleration = MathUtil.normalize(Constants.kDriveMaxAxis, Constants.kDriveMinAxis, Constants.kDriveLowRange, Constants.kDriveHighRange, accelerationSupplier.getAsDouble());
+    double speedMultiplier = MathUtil.normalize(Constants.kDriveMaxAxis, Constants.kDriveMinAxis, Constants.kDriveLowRange, Constants.kDriveHighRange, accelerationSupplier.getAsDouble());
 
-    drivetrain.setDriveMotors((throttle + turn) * acceleration, (throttle - turn) * acceleration);
+    drivetrain.arcadeDrive(throttle * speedMultiplier, turn * speedMultiplier);
   }
 
   // Called once the command ends or is interrupted.

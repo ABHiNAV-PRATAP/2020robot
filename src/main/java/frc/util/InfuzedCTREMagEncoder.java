@@ -5,20 +5,21 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.subsystems;
+package frc.util;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-public class ExampleSubsystem extends SubsystemBase {
-  /**
-   * Creates a new ExampleSubsystem.
-   */
-  public ExampleSubsystem() {
+/**
+ * Add your docs here.
+ */
+public class InfuzedCTREMagEncoder {
 
-  }
+    private WPI_TalonSRX talon;
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
+    public InfuzedCTREMagEncoder(WPI_TalonSRX talon)
+    {
+        this.talon = talon;
+    }
+
+    
 }
