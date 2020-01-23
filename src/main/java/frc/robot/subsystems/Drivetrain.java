@@ -10,6 +10,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.I2C.Port;
@@ -24,9 +25,9 @@ import frc.robot.Constants;
 public class Drivetrain extends SubsystemBase {
   
   private WPI_TalonSRX leftDriveMaster;
-  private WPI_TalonSRX leftDriveSlave;
+  private WPI_VictorSPX leftDriveSlave;
   private WPI_TalonSRX rightDriveMaster;
-  private WPI_TalonSRX rightDriveSlave;
+  private WPI_VictorSPX rightDriveSlave;
 
   DifferentialDrive drive;
   DifferentialDriveOdometry odometry;
@@ -38,9 +39,9 @@ public class Drivetrain extends SubsystemBase {
    */
   public Drivetrain() {
     leftDriveMaster = new WPI_TalonSRX(Constants.kLeftDriveMasterPort);
-    leftDriveSlave = new WPI_TalonSRX(Constants.kLeftDriveSlavePort);
+    leftDriveSlave = new WPI_VictorSPX(Constants.kLeftDriveSlavePort);
     rightDriveMaster = new WPI_TalonSRX(Constants.kRightDriveMasterPort);
-    rightDriveSlave = new WPI_TalonSRX(Constants.kRightDriveSlavePort);
+    rightDriveSlave = new WPI_VictorSPX(Constants.kRightDriveSlavePort);
 
     leftDriveMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
     rightDriveMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
