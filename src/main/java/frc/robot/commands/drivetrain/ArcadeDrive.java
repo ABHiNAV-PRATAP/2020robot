@@ -41,11 +41,16 @@ public class ArcadeDrive extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double throttle = throttleSupplier.getAsDouble();
+    double speedMultiplierRaw = accelerationSupplier.getAsDouble();
+    double throttle = -throttleSupplier.getAsDouble();
     double turn = turnSupplier.getAsDouble();
-    double speedMultiplier = MathUtil.normalize(Constants.kDriveMaxAxis, Constants.kDriveMinAxis, Constants.kDriveLowRange, Constants.kDriveHighRange, accelerationSupplier.getAsDouble());
+    
+    double speedMultiplier = MathUtil.normalize(1, -1, 0.2, 1, speedMultiplierRaw);
+    System.out.println("Speed Multiplier " + speedMultiplier);
+    System.out.println("X " + turn);
+    System.out.println("Y " + throttle);
 
-    drivetrain.arcadeDrive(throttle * speedMultiplier, turn * speedMultiplier);
+    drivetrain.setDriveMotors((throttle + turn) * speedMultiplier, (throttle - turn) * speedMultiplier);
   }
 
   // Called once the command ends or is interrupted.

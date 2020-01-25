@@ -14,7 +14,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.I2C.Port;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
@@ -29,7 +28,6 @@ public class Drivetrain extends SubsystemBase {
   private WPI_TalonSRX rightDriveMaster;
   private WPI_VictorSPX rightDriveSlave;
 
-  DifferentialDrive drive;
   DifferentialDriveOdometry odometry;
 
   private AHRS gyro;
@@ -51,7 +49,6 @@ public class Drivetrain extends SubsystemBase {
 
     rightDriveMaster.setInverted(true);
     rightDriveSlave.setInverted(true);
-
     gyro = new AHRS(Port.kMXP);
 
     leftDriveSlave.follow(leftDriveMaster);
@@ -65,8 +62,6 @@ public class Drivetrain extends SubsystemBase {
     leftDriveSlave.setNeutralMode(NeutralMode.Coast);
     rightDriveSlave.setNeutralMode(NeutralMode.Coast);
 
-    drive = new DifferentialDrive(leftDriveMaster, rightDriveMaster);
-
   }
 
   public void setDriveMotors(double leftValue, double rightValue) {
@@ -78,11 +73,6 @@ public class Drivetrain extends SubsystemBase {
   {
     leftDriveMaster.setVoltage(leftVoltage);
     rightDriveMaster.setVoltage(rightVoltage);
-  }
-
-  public void arcadeDrive(double xSpeed, double zRotation)
-  {
-    drive.arcadeDrive(xSpeed, zRotation, false); // Does NOT square the inputs at low speeds to decrease sensitivity
   }
 
   public void setDriveMotors(double value) {
