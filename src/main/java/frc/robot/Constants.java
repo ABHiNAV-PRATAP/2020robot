@@ -35,7 +35,6 @@ public final class Constants {
     public static final double kDriveLowRange = 0.2;
     public static final double kDriveHighRange = 1;
     public static final double kTicksPerRotation = 4096;
-    public static final boolean kGyroReversed = false;
 
     // Drivetrain Characterization & Ramsete Constants
     public static final double ksVolts = 0;

@@ -29,8 +29,10 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.drivetrain.ExampleCommand;
+import frc.robot.commands.shooter.Shoot;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
 
@@ -46,6 +48,8 @@ public class RobotContainer {
   private final Shooter shooter = new Shooter();
 
   private Joystick driveJoystick = new Joystick(Constants.kDriveJoystickPort);
+
+  private final JoystickButton shoot = new JoystickButton(driveJoystick, 1);
 
   SendableChooser<Trajectory> autonomousTrajectories;
 
@@ -64,7 +68,7 @@ public class RobotContainer {
         () -> driveJoystick.getThrottle()
       )
     );
-
+    
     Shuffleboard.getTab("Auto Commands").add("Auto Mode", autonomousTrajectories);
 
     try 
@@ -95,6 +99,9 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+
+    shoot.whileHeld(new Shoot(shooter, () -> shooter.topSetpointShuffleboard.getDouble(60), () -> shooter.bottomSetpointShuffleboard.getDouble(80)));
+
   }
 
   /**

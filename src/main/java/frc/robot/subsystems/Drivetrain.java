@@ -13,7 +13,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
@@ -44,11 +44,17 @@ public class Drivetrain extends SubsystemBase {
     leftDriveMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
     rightDriveMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
 
+    
+    /*
+    * Need to check encoder values and drivetrain inversions
+    */
+
     // leftDriveMaster.setSensorPhase(false);
     // rightDriveMaster.setSensorPhase(true);
+    // rightDriveMaster.setInverted(true);
+    // rightDriveSlave.setInverted(true);
 
-    rightDriveMaster.setInverted(true);
-    rightDriveSlave.setInverted(true);
+
     gyro = new AHRS(Port.kMXP);
 
     leftDriveSlave.follow(leftDriveMaster);
@@ -81,9 +87,13 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public Rotation2d getHeading() {
+    /**
+    * 0 degrees / radians represents the robot angle when the robot is facing directly toward your 
+    * opponent’s alliance station. As your robot turns to the left, 
+    * your gyroscope angle should increase. By default, WPILib gyros exhibit 
+    * the opposite behavior, so you should negate the gyro angle.
+    */
     return Rotation2d.fromDegrees(-gyro.getAngle());
-    
-    // return Math.IEEEremainder(gyro.getAngle(), 360) * (Constants.kGyroReversed ? -1.0 : 1.0); // The reaminder is the angle since heading angle accumulates past 360 degrees i.e. 365 degrees, 500 degrees
   }
 
   public void stop() {
@@ -110,6 +120,17 @@ public class Drivetrain extends SubsystemBase {
   public Pose2d getPose()
   {
     return odometry.getPoseMeters();
+  }
+
+  /** 
+   * @param poseMeters The position on the field the robot is at.
+  */
+  public void resetPose(Pose2d poseMeters)
+  {
+    odometry.resetPosition(poseMeters, getHeading());
+    leftDriveMaster.setSelectedSensorPosition(0);
+    rightDriveMaster.setSelectedSensorPosition(0);
+
   }
 
   @Override
