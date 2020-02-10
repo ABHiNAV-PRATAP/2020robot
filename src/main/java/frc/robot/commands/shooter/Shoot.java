@@ -11,27 +11,29 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.VisionLEDs;
 
 public class Shoot extends CommandBase {
   private final Shooter shooter;
   private final DoubleSupplier topSetpoint;
   private final DoubleSupplier bottomSetpoint;
+  private final VisionLEDs leds;
   /**
    * Creates a new Shoot.
    */
-  public Shoot(Shooter shooter, DoubleSupplier topSetpoint, DoubleSupplier bottomSetpoint) {
+  public Shoot(Shooter shooter, DoubleSupplier topSetpoint, DoubleSupplier bottomSetpoint, VisionLEDs leds) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.shooter = shooter;
     this.topSetpoint = topSetpoint;
     this.bottomSetpoint = bottomSetpoint;
+    this.leds = leds;
     addRequirements(shooter);
   }
 
   @Override
   public void initialize() {
     shooter.setServoAngle(60);
-    shooter.setBottomMotorVoltage(12);
-
+    leds.TurnOnLEDs();
     // shooter.tpid.setTolerance(1);
     // shooter.bpid.setTolerance(1);
   }
@@ -60,6 +62,7 @@ public class Shoot extends CommandBase {
     shooter.setTopMotorVoltage(0);
     shooter.setBottomMotorVoltage(0);
     shooter.setServoAngle(0);
+    leds.TurnOffLEDs();
   }
 
   // Returns true when the command should end.

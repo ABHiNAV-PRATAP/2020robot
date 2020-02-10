@@ -51,8 +51,8 @@ public class Drivetrain extends SubsystemBase {
 
     // leftDriveMaster.setSensorPhase(false);
     // rightDriveMaster.setSensorPhase(true);
-    // rightDriveMaster.setInverted(true);
-    // rightDriveSlave.setInverted(true);
+    rightDriveMaster.setInverted(true);
+    rightDriveSlave.setInverted(true);
 
 
     gyro = new AHRS(Port.kMXP);
@@ -93,7 +93,7 @@ public class Drivetrain extends SubsystemBase {
     * your gyroscope angle should increase. By default, WPILib gyros exhibit 
     * the opposite behavior, so you should negate the gyro angle.
     */
-    return Rotation2d.fromDegrees(-gyro.getAngle());
+    return Rotation2d.fromDegrees(-gyro.getYaw());
   }
 
   public void stop() {
@@ -136,6 +136,7 @@ public class Drivetrain extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    odometry.update(getHeading(), leftDriveMaster.getSelectedSensorPosition() * Constants.kDistancePerTick, rightDriveMaster.getSelectedSensorPosition() * Constants.kDistancePerTick);
+    // odometry.update(getHeading(), leftDriveMaster.getSelectedSensorPosition() * Constants.kDistancePerTick, rightDriveMaster.getSelectedSensorPosition() * Constants.kDistancePerTick);
+    System.out.println("gyro: " + gyro.getYaw());
   }
 }

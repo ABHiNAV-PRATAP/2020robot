@@ -5,63 +5,75 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package frc.robot.commands.drivetrain;
+package frc.robot.commands.shooter;
 
+import java.lang.annotation.Target;
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
-import frc.util.MathUtil;
 
-public class ArcadeDrive extends CommandBase {
-  private final Drivetrain drivetrain;
-  private final DoubleSupplier throttleSupplier;
-  private final DoubleSupplier turnSupplier;
-  private final DoubleSupplier accelerationSupplier;
-
+public class CenterToVisionTarget extends CommandBase {
   /**
-   * Creates a new ArcadeDrive.
+   * Creates a new CenterToVisionTarget.
    */
-  public ArcadeDrive(Drivetrain drivetrain, DoubleSupplier throttleSupplier, DoubleSupplier turnSupplier, DoubleSupplier accelerationSupplier) {
+
+   private final double kP = 0, kD = 0;
+   private final double tolerance = 5;
+  PIDController centerPID = new PIDController(kP, 0, kD);
+  DoubleSupplier yaw;
+  Drivetrain drivetrain;
+  private final double target = 0;
+
+  double error = 0;
+
+  public CenterToVisionTarget(Drivetrain drivetrain, DoubleSupplier yaw) {
     // Use addRequirements() here to declare subsystem dependencies.
-    this.drivetrain = drivetrain;
-    this.throttleSupplier = throttleSupplier;
-    this.turnSupplier = turnSupplier;
-    this.accelerationSupplier = accelerationSupplier;
     addRequirements(drivetrain);
+    this.yaw = yaw;
+    this.drivetrain = drivetrain;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    drivetrain.stop();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double speedMultiplierRaw = accelerationSupplier.getAsDouble();
-    double throttle = throttleSupplier.getAsDouble();
-    double turn = turnSupplier.getAsDouble();
-    
-    double speedMultiplier = MathUtil.normalize(1, -1, 0.2, 1, speedMultiplierRaw);
-    System.out.println("Speed Multiplier " + speedMultiplier);
-    System.out.println("X " + turn);
-    System.out.println("Y " + throttle);
 
-    drivetrain.setDriveMotors((throttle + turn) * speedMultiplier, (throttle - turn) * speedMultiplier);
+    error = target - yaw.getAsDouble();
+
+    if (error > tolerance)
+    {
+      drivetrain.setDriveMotors(-0.1, 0.1);
+    }
+    else if (error < -tolerance)
+    {
+      drivetrain.setDriveMotors(0.1, 0.1);
+    }
+    
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     drivetrain.stop();
+    System.out.println("done centering");
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    if(Math.abs(error) <= tolerance)
+    {
+      return true;
+    }
+    else
+    {
     return false;
+    }
   }
 }

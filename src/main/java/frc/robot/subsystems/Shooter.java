@@ -21,7 +21,9 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.util.vision.VisionTargetPose2d;
 public class Shooter extends SubsystemBase {
+  VisionTargetPose2d current2dPose;
   // List<double[]> targetPoseSample;
   double[] targetPose;
   double tkP = 0.0075; //0.957;
@@ -40,6 +42,9 @@ public class Shooter extends SubsystemBase {
   // forward ks = 0.0523, kv = 0.128, ka = 0.0202, kp = 0.943
   // backward ks = 0.0496, kv = 0.129, ka = 0.0208, kp = 0.972
   final double wheelRadius = Units.inchesToMeters(2);
+
+VisionLEDs leds;
+
   CANSparkMax topMotor;
   CANSparkMax bottomMotor;
   Servo servo = new Servo(0);
@@ -71,7 +76,8 @@ public class Shooter extends SubsystemBase {
   /**
    * Creates a new Shooter.
    */
-  public Shooter() {
+  public Shooter(VisionLEDs leds) {
+    this.leds = leds;
     topMotor = new CANSparkMax(11, MotorType.kBrushless);
     bottomMotor = new CANSparkMax(10, MotorType.kBrushless);
     // topMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
@@ -102,8 +108,31 @@ public class Shooter extends SubsystemBase {
   public Double getDistanceFromPose() {
     return getTargetPose()[0]*1.613191185 - 1.267661978;// old regression: 1.332335981 - 0.0744373614;
   }
+
+  public double getYaw()
+  {
+    if(leds.getLEDStatus()) {
+      current2dPose = new VisionTargetPose2d(
+        cameraTable.getEntry("targetPitch").getDouble(0),
+        cameraTable.getEntry("targetYaw").getDouble(0),
+        cameraTable.getEntry("targetArea").getDouble(0)
+      );
+
+      return current2dPose.getYaw();
+    }
+
+    return 0;
+  }
+
   @Override
   public void periodic() {
+    // if(leds.getLEDStatus()) {
+    //   current2dPose = new VisionTargetPose2d(
+    //     cameraTable.getEntry("targetPitch").getDouble(0),
+    //     cameraTable.getEntry("targetYaw").getDouble(0),
+    //     cameraTable.getEntry("targetArea").getDouble(0)
+    //   );
+    // }
     topMotorVoltage.setDouble(topMotor.getBusVoltage());
     bottomMotorVoltage.setDouble(bottomMotor.getBusVoltage());
     topMotorVelocity.setDouble(getTopVelocity());
@@ -112,7 +141,7 @@ public class Shooter extends SubsystemBase {
     bpid.setP(bottomP.getDouble(bkP));
     bpid.setD(bottomP.getDouble(bkD));
     bff = new SimpleMotorFeedforward(bottomP.getDouble(0.126), bkV);
-    System.out.println(getDistanceFromPose());
+    // System.out.println(getDistanceFromPose());
     // Double[] pose = getTargetPose();
     // System.out.println("x" + pose[0]);
     // System.out.println("y" + pose[1]);

@@ -14,6 +14,7 @@ import java.util.List;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
@@ -32,11 +33,13 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.drivetrain.ExampleCommand;
+import frc.robot.commands.drivetrain.TankDrive;
 import frc.robot.commands.intake.IntakeCell;
 import frc.robot.commands.shooter.Shoot;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.VisionLEDs;
 
 /**
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -50,7 +53,7 @@ public class RobotContainer {
 
   private final Intake intake = new Intake();
 
-  private final Shooter shooter = new Shooter();
+  private final Shooter shooter;
 
   private Joystick driveJoystick = new Joystick(Constants.kDriveJoystickPort);
 
@@ -58,7 +61,11 @@ public class RobotContainer {
 
   SendableChooser<Trajectory> autonomousTrajectories;
 
-  private final JoystickButton intakeCell;
+  private final JoystickButton intakeCell = new JoystickButton(driveJoystick, 2);
+
+  private final VisionLEDs leds = new VisionLEDs();
+
+  // private final XboxController controller = new XboxController(1);
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
@@ -66,39 +73,46 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-    
-    intakeCell = new JoystickButton(driveJoystick, 2);
 
+    shooter = new Shooter(leds);
+
+    // drivetrain.setDefaultCommand(
+    //   new TankDrive(
+    //     drivetrain, 
+    //     () -> -controller.getY(Hand.kLeft), 
+    //     () -> -controller.getY(Hand.kRight)
+    //   )
+    // );
     drivetrain.setDefaultCommand(
       new ArcadeDrive(
-        drivetrain, 
-        () -> driveJoystick.getY(), 
+        drivetrain,
+        () -> driveJoystick.getY(),
         () -> driveJoystick.getX(),
         () -> driveJoystick.getThrottle()
       )
     );
     
-    Shuffleboard.getTab("Auto Commands").add("Auto Mode", autonomousTrajectories);
+    // Shuffleboard.getTab("Auto Commands").add("Auto Mode", autonomousTrajectories);
 
-    try 
-    {
-      File folder = new File("/home/lvuser/deploy/");
-      File[] listOfFiles = folder.listFiles();
+    // try 
+    // {
+    //   File folder = new File("/home/lvuser/deploy/");
+    //   File[] listOfFiles = folder.listFiles();
 
-      for (int i = 0; i < listOfFiles.length; i++) {
+    //   for (int i = 0; i < listOfFiles.length; i++) {
 
-        if (listOfFiles[i].isFile()) 
-        {
-          System.out.println("File " + listOfFiles[i].getName());
-          autonomousTrajectories.addOption(listOfFiles[i].getName(), TrajectoryUtil.fromPathweaverJson(Paths.get(folder.toString() + listOfFiles[i].getName())));
-        } 
+    //     if (listOfFiles[i].isFile()) 
+    //     {
+    //       System.out.println("File " + listOfFiles[i].getName());
+    //       autonomousTrajectories.addOption(listOfFiles[i].getName(), TrajectoryUtil.fromPathweaverJson(Paths.get(folder.toString() + listOfFiles[i].getName())));
+    //     } 
 
-      }
-    }
-    catch (Exception e)
-    {
-      System.out.println("Unable to populate trajectories!");
-    }
+    //   }
+    // }
+    // catch (Exception e)
+    // {
+    //   System.out.println("Unable to populate trajectories!");
+    // }
   }
 
   /**
@@ -109,7 +123,10 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    shoot.whileHeld(new Shoot(shooter, () -> shooter.topSetpointShuffleboard.getDouble(0), () -> shooter.bottomSetpointShuffleboard.getDouble(0)).andThen(() -> shooter.setBottomMotorVoltage(0)).andThen(() -> shooter.setTopMotorVoltage(0)));
+    shoot.whileHeld(new Shoot(shooter, 
+    () -> shooter.topSetpointShuffleboard.getDouble(0), 
+    () -> shooter.bottomSetpointShuffleboard.getDouble(0),
+    leds));
     intakeCell.whileHeld(new IntakeCell(intake));
 
   }
@@ -120,62 +137,62 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    var autoVoltageConstraint =
-        new DifferentialDriveVoltageConstraint(
-            new SimpleMotorFeedforward(Constants.ksVolts,
-                                       Constants.kvVoltSecondsPerMeter,
-                                       Constants.kaVoltSecondsSquaredPerMeter),
-            Constants.kDriveKinematics,
-            10);
+    // var autoVoltageConstraint =
+    //     new DifferentialDriveVoltageConstraint(
+    //         new SimpleMotorFeedforward(Constants.ksVolts,
+    //                                    Constants.kvVoltSecondsPerMeter,
+    //                                    Constants.kaVoltSecondsSquaredPerMeter),
+    //         Constants.kDriveKinematics,
+    //         10);
 
-    TrajectoryConfig config =
-        new TrajectoryConfig(Constants.kMaxSpeedMetersPerSecond,
-                             Constants.kMaxAccelerationMetersPerSecondSquared)           
-            .setKinematics(Constants.kDriveKinematics)
-            .addConstraint(autoVoltageConstraint);
+    // TrajectoryConfig config =
+    //     new TrajectoryConfig(Constants.kMaxSpeedMetersPerSecond,
+    //                          Constants.kMaxAccelerationMetersPerSecondSquared)           
+    //         .setKinematics(Constants.kDriveKinematics)
+    //         .addConstraint(autoVoltageConstraint);
 
-    Trajectory drive3mTrajectory = TrajectoryGenerator.generateTrajectory(
-        new Pose2d(0, 0, new Rotation2d(0)),
-        List.of(
-            new Translation2d(1, 0),
-            new Translation2d(2, 0)
-        ),
-        new Pose2d(3, 0, new Rotation2d(0)),
-        config
-    );
+    // Trajectory drive3mTrajectory = TrajectoryGenerator.generateTrajectory(
+    //     new Pose2d(0, 0, new Rotation2d(0)),
+    //     List.of(
+    //         new Translation2d(1, 0),
+    //         new Translation2d(2, 0)
+    //     ),
+    //     new Pose2d(3, 0, new Rotation2d(0)),
+    //     config
+    // );
 
-    Trajectory traj = null;
+    // Trajectory traj = null;
 
-    try 
-    {
-      traj = autonomousTrajectories.getSelected();
-      if (traj == null)
-      {
-        throw new Exception();
-      }
-    } 
-    catch (Exception e) 
-    {
-      System.out.println("Unable to find autonomous file!");
-      System.out.println("Defaulting to Drive 3 Meters Forward");
-      traj = drive3mTrajectory;
-    }
+    // try 
+    // {
+    //   traj = autonomousTrajectories.getSelected();
+    //   if (traj == null)
+    //   {
+    //     throw new Exception();
+    //   }
+    // } 
+    // catch (Exception e) 
+    // {
+    //   System.out.println("Unable to find autonomous file!");
+    //   System.out.println("Defaulting to Drive 3 Meters Forward");
+    //   traj = drive3mTrajectory;
+    // }
 
-    RamseteCommand ramseteCommand = new RamseteCommand(
-        traj,
-        drivetrain::getPose,
-        new RamseteController(Constants.kRamseteBeta, Constants.kRamseteZeta),
-        new SimpleMotorFeedforward(Constants.ksVolts,
-                                   Constants.kvVoltSecondsPerMeter,
-                                   Constants.kaVoltSecondsSquaredPerMeter),
-        Constants.kDriveKinematics,
-        drivetrain::getWheelSpeeds,
-        new PIDController(Constants.kPDriveVelocity, 0, 0),
-        new PIDController(Constants.kPDriveVelocity, 0, 0),
-        // RamseteCommand passes volts to the callback
-        drivetrain::setDriveMotorVoltage,
-        drivetrain
-    );
+    // RamseteCommand ramseteCommand = new RamseteCommand(
+    //     traj,
+    //     drivetrain::getPose,
+    //     new RamseteController(Constants.kRamseteBeta, Constants.kRamseteZeta),
+    //     new SimpleMotorFeedforward(Constants.ksVolts,
+    //                                Constants.kvVoltSecondsPerMeter,
+    //                                Constants.kaVoltSecondsSquaredPerMeter),
+    //     Constants.kDriveKinematics,
+    //     drivetrain::getWheelSpeeds,
+    //     new PIDController(Constants.kPDriveVelocity, 0, 0),
+    //     new PIDController(Constants.kPDriveVelocity, 0, 0),
+    //     // RamseteCommand passes volts to the callback
+    //     drivetrain::setDriveMotorVoltage,
+    //     drivetrain
+    // );
 
     // Run path following command, then stop at the end.
     // return ramseteCommand.andThen(() -> drivetrain.setDriveMotorVoltage(0, 0));
