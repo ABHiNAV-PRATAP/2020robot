@@ -27,9 +27,13 @@ public class Shoot extends CommandBase {
     addRequirements(shooter);
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    shooter.setServoAngle(60);
+    shooter.setBottomMotorVoltage(12);
+
+    // shooter.tpid.setTolerance(1);
+    // shooter.bpid.setTolerance(1);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -43,8 +47,11 @@ public class Shoot extends CommandBase {
       shooter.bpid.setSetpoint(bsp);
       double calctop = shooter.tpid.calculate(tv);
       double calcBot = shooter.bpid.calculate(bv);
+      System.out.println(calcBot + shooter.bff.calculate(bsp));
       shooter.setTopMotorVoltage(calctop + shooter.tff.calculate(tsp));
       shooter.setBottomMotorVoltage(calcBot + shooter.bff.calculate(bsp));
+      // shooter.setTopMotorVoltage(2);
+      // shooter.setBottomMotorVoltage(6);
   }
 
   // Called once the command ends or is interrupted.
@@ -52,6 +59,7 @@ public class Shoot extends CommandBase {
   public void end(boolean interrupted) {
     shooter.setTopMotorVoltage(0);
     shooter.setBottomMotorVoltage(0);
+    shooter.setServoAngle(0);
   }
 
   // Returns true when the command should end.
