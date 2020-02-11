@@ -33,9 +33,12 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.drivetrain.ExampleCommand;
+import frc.robot.commands.drivetrain.RotateToAngle;
 import frc.robot.commands.drivetrain.TankDrive;
 import frc.robot.commands.intake.IntakeCell;
 import frc.robot.commands.shooter.Shoot;
+import frc.robot.commands.shooter.UpdateTargetPose;
+import frc.robot.commands.shooter.VisionAssistedShoot;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -53,7 +56,7 @@ public class RobotContainer {
 
   private final Intake intake = new Intake();
 
-  private final Shooter shooter;
+  private final Shooter shooter = new Shooter();
 
   private Joystick driveJoystick = new Joystick(Constants.kDriveJoystickPort);
 
@@ -74,7 +77,6 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
-    shooter = new Shooter(leds);
 
     // drivetrain.setDefaultCommand(
     //   new TankDrive(
@@ -123,10 +125,26 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    shoot.whileHeld(new Shoot(shooter, 
-    () -> shooter.topSetpointShuffleboard.getDouble(0), 
-    () -> shooter.bottomSetpointShuffleboard.getDouble(0),
-    leds));
+    // shoot.whileHeld(new Shoot(shooter, 
+    // () -> shooter.topSetpointShuffleboard.getDouble(0), 
+    // () -> shooter.bottomSetpointShuffleboard.getDouble(0),
+    // leds));
+    shoot.whileHeld(
+      new UpdateTargetPose(
+        shooter,
+        leds
+      ).andThen(
+        new RotateToAngle(
+          drivetrain, 
+          () -> drivetrain.getHeading().getDegrees() + shooter.getYawToTarget()
+        )
+      ).andThen(
+        new VisionAssistedShoot(
+          shooter
+        )
+      )
+    );
+    
     intakeCell.whileHeld(new IntakeCell(intake));
 
   }

@@ -6,10 +6,13 @@
 /*----------------------------------------------------------------------------*/
 // neos are spinning backwards so fix tht, spacer is needed 
 package frc.robot.subsystems;
-import java.util.List;
+
+import java.util.ArrayList;
 import java.util.Map;
+
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -21,11 +24,18 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.util.vision.Interpolator;
+import frc.util.vision.ShooterProfile;
 import frc.util.vision.VisionTargetPose2d;
+import frc.util.vision.VisionTargetPose3d;
+
 public class Shooter extends SubsystemBase {
-  VisionTargetPose2d current2dPose;
-  // List<double[]> targetPoseSample;
-  double[] targetPose;
+
+  private VisionTargetPose2d currentTargetPose2d;
+  private VisionTargetPose3d currentTargetPose3d;
+
+  private Interpolator interpolator;
+  
   double tkP = 0.0075; //0.957;
   final double tkI = 0;
   double tkD = 0;
@@ -42,8 +52,6 @@ public class Shooter extends SubsystemBase {
   // forward ks = 0.0523, kv = 0.128, ka = 0.0202, kp = 0.943
   // backward ks = 0.0496, kv = 0.129, ka = 0.0208, kp = 0.972
   final double wheelRadius = Units.inchesToMeters(2);
-
-VisionLEDs leds;
 
   CANSparkMax topMotor;
   CANSparkMax bottomMotor;
@@ -68,71 +76,111 @@ VisionLEDs leds;
   NetworkTableEntry bottomV = tab.add("bottom V ", bkV).withWidget(BuiltInWidgets.kTextView).getEntry();
   public NetworkTableEntry topSetpointShuffleboard = tab.add("Top Setpoint", 0).withSize(2, 1).withWidget(BuiltInWidgets.kTextView).getEntry();
   public NetworkTableEntry bottomSetpointShuffleboard = tab.add("Bottom Setpoint", 0).withSize(2, 1).withWidget(BuiltInWidgets.kTextView).getEntry();
-  // Gets the default instance of NetworkTables
+  
   NetworkTableInstance table = NetworkTableInstance.getDefault();
-  // Gets the MyCamName table under the chamelon-vision table
-  // MyCamName will vary depending on the name of your camera
   NetworkTable cameraTable = table.getTable("chameleon-vision").getSubTable("infuzed-ps3");
   /**
    * Creates a new Shooter.
    */
-  public Shooter(VisionLEDs leds) {
-    this.leds = leds;
+  public Shooter() {
     topMotor = new CANSparkMax(11, MotorType.kBrushless);
     bottomMotor = new CANSparkMax(10, MotorType.kBrushless);
-    // topMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
-    // bottomMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
-    // topMotor.setSelectedSensorPosition(0);
-    // bottomMotor.setSelectedSensorPosition(0);
-    //topMotor.setInverted(true);
-    //bottomMotor.setInverted(false);
     topMotor.setInverted(false);
     bottomMotor.setInverted(true);
-    // tpid.setTolerance(1, 1);
-    // bpid.setTolerance(1, 1);
     topMotor.getEncoder().setPosition(0);
     bottomMotor.getEncoder().setPosition(0);
+
+    interpolator = new Interpolator(
+      // Add and modify these profiles to match the experimental data we collect
+      new ArrayList<ShooterProfile>() {{
+        // add(new ShooterProfile(x (distance), top shooter speed, bottom shooter speed))
+        add(new ShooterProfile(0, 0, 0));
+        add(new ShooterProfile(0, 0, 0));
+        add(new ShooterProfile(0, 0, 0));
+      }}
+    );
   }
+
   public void setTopMotorVoltage(double value) {
     topMotor.setVoltage(value);
   }
+
   public void setServoAngle(double degrees) {
     servo.setAngle(degrees);
   }
+
   public void setBottomMotorVoltage(double value) {
     bottomMotor.set(value/12);
   }
-  public Double[] getTargetPose() {
-    return cameraTable.getEntry("targetPose").getDoubleArray(new Double[] {0.0, 0.0, 0.0});
-  }
-  public Double getDistanceFromPose() {
-    return getTargetPose()[0]*1.613191185 - 1.267661978;// old regression: 1.332335981 - 0.0744373614;
+
+  public ShooterProfile getShooterProfileFromInterpolator(double distance) {
+    return interpolator.interpolate(distance);
   }
 
-  public double getYaw()
-  {
-    if(leds.getLEDStatus()) {
-      current2dPose = new VisionTargetPose2d(
-        cameraTable.getEntry("targetPitch").getDouble(0),
-        cameraTable.getEntry("targetYaw").getDouble(0),
-        cameraTable.getEntry("targetArea").getDouble(0)
-      );
-
-      return current2dPose.getYaw();
+  public VisionTargetPose2d getTargetPose2d() {
+    if (!cameraTable.getEntry("isValid").getBoolean(false)) {
+      return null;
     }
+    return new VisionTargetPose2d(
+      cameraTable.getEntry("targetPitch").getDouble(0.0),
+      cameraTable.getEntry("targetYaw").getDouble(0.0),
+      cameraTable.getEntry("targetArea").getDouble(0.0)
+    );
+  }
 
-    return 0;
+  public VisionTargetPose3d getTargetPose3d() {
+    if (!cameraTable.getEntry("isValid").getBoolean(false)) {
+      return null;
+    }
+    return new VisionTargetPose3d(
+      cameraTable.getEntry("targetPose").getDoubleArray(
+        new Double[] {0.0, 0.0, 0.0}
+      )
+    );
+  }
+
+  public boolean setTargetPose2d(VisionTargetPose2d targetPose2d) {
+    if(targetPose2d == null) {
+      return false;
+    }
+    currentTargetPose2d = targetPose2d;
+    return true;
+  }
+
+  public boolean setTargetPose3d(VisionTargetPose3d targetPose3d) {
+    if(targetPose3d == null) {
+      return false;
+    }
+    currentTargetPose3d = targetPose3d;
+    return true;
+  }
+
+  public Double getXToTarget() {
+    return currentTargetPose3d.getX();
+  }
+
+  public Double getYToTarget() { 
+    return currentTargetPose3d.getY();
+  }
+
+  public Double getAngleToTarget() { 
+    return currentTargetPose3d.getAngle();
+  }
+
+  public Double getPitchToTarget() {
+    return currentTargetPose2d.getPitch();
+  }
+
+  public Double getYawToTarget() {
+    return currentTargetPose2d.getYaw();
+  }
+
+  public Double getAreaOfTarget() {
+    return currentTargetPose2d.getArea();
   }
 
   @Override
   public void periodic() {
-    // if(leds.getLEDStatus()) {
-    //   current2dPose = new VisionTargetPose2d(
-    //     cameraTable.getEntry("targetPitch").getDouble(0),
-    //     cameraTable.getEntry("targetYaw").getDouble(0),
-    //     cameraTable.getEntry("targetArea").getDouble(0)
-    //   );
-    // }
     topMotorVoltage.setDouble(topMotor.getBusVoltage());
     bottomMotorVoltage.setDouble(bottomMotor.getBusVoltage());
     topMotorVelocity.setDouble(getTopVelocity());

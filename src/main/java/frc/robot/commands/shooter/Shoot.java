@@ -33,7 +33,7 @@ public class Shoot extends CommandBase {
   @Override
   public void initialize() {
     shooter.setServoAngle(60);
-    leds.TurnOnLEDs();
+    leds.turnOn();
     // shooter.tpid.setTolerance(1);
     // shooter.bpid.setTolerance(1);
   }
@@ -62,7 +62,7 @@ public class Shoot extends CommandBase {
     shooter.setTopMotorVoltage(0);
     shooter.setBottomMotorVoltage(0);
     shooter.setServoAngle(0);
-    leds.TurnOffLEDs();
+    leds.turnOff();
   }
 
   // Returns true when the command should end.
