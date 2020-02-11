@@ -136,7 +136,8 @@ public class RobotContainer {
       ).andThen(
         new RotateToAngle(
           drivetrain, 
-          () -> drivetrain.getHeading().getDegrees() + shooter.getYawToTarget()
+          // () -> drivetrain.getHeading().getDegrees() + shooter.getYawToTarget()
+          drivetrain.getHeading().getDegrees() + shooter.getYawToTarget()
         )
       ).andThen(
         new VisionAssistedShoot(
@@ -144,7 +145,7 @@ public class RobotContainer {
         )
       )
     );
-    
+
     intakeCell.whileHeld(new IntakeCell(intake));
 
   }

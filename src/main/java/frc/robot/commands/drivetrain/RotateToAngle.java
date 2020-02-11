@@ -15,11 +15,11 @@ import frc.robot.subsystems.Drivetrain;
 public class RotateToAngle extends CommandBase {
   private final Drivetrain drivetrain;
 
-  private final DoubleSupplier angle;
+  private final double /*DoubleSupplier*/ angle;
   /**
    * Creates a new RotateToAngle.
    */
-  public RotateToAngle(Drivetrain drivetrain, DoubleSupplier angle) {
+  public RotateToAngle(Drivetrain drivetrain, double /*DoubleSupplier*/ angle) {
     this.drivetrain = drivetrain;
     this.angle = angle;
     addRequirements(drivetrain);
