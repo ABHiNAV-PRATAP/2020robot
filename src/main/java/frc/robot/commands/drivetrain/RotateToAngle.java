@@ -7,43 +7,48 @@
 
 package frc.robot.commands.drivetrain;
 
-import java.util.function.DoubleSupplier;
-
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
+import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
+import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
 
-public class RotateToAngle extends CommandBase {
-  private final Drivetrain drivetrain;
-
-  private final double /*DoubleSupplier*/ angle;
+/**
+ * A command that will turn the robot to the specified angle using a motion profile.
+ */
+public class RotateToAngle extends ProfiledPIDCommand {
   /**
-   * Creates a new RotateToAngle.
+   * Turns to robot to the specified angle using a motion profile.
+   *
+   * @param targetAngleDegrees The angle to turn to
+   * @param drive              The drive subsystem to use
    */
-  public RotateToAngle(Drivetrain drivetrain, double /*DoubleSupplier*/ angle) {
-    this.drivetrain = drivetrain;
-    this.angle = angle;
-    addRequirements(drivetrain);
-    // Use addRequirements() here to declare subsystem dependencies.
+  public RotateToAngle(Drivetrain drivetrain, double targetAngleDegrees) {
+    super(
+        new ProfiledPIDController(Constants.kDriveTurnP, Constants.kDriveTurnI,
+                                  Constants.kDriveTurnD, new TrapezoidProfile.Constraints(
+            Constants.kMaxTurnRateDegPerS,
+            Constants.kMaxTurnAccelerationDegPerSSquared)),
+        // Close loop on heading
+        drivetrain::getHeadingAsAngle,
+        // Set reference to target
+        targetAngleDegrees,
+        // Pipe output to turn robot
+        (output, setpoint) -> drivetrain.arcadeDrive(0, output),
+        // Require the drive
+        drivetrain);
+
+    // Set the controller to be continuous (because it is an angle controller)
+    getController().enableContinuousInput(-180, 180);
+    // Set the controller tolerance - the delta tolerance ensures the robot is stationary at the
+    // setpoint before it is considered as having reached the reference
+    getController()
+        .setTolerance(Constants.kTurnToleranceDeg, Constants.kTurnRateToleranceDegPerS);
   }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-  }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-  }
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-  }
-
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    // End when the controller is at the reference.
+    return getController().atGoal();
   }
 }

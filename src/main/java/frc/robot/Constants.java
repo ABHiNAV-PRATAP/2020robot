@@ -36,6 +36,14 @@ public final class Constants {
     public static final double kDriveHighRange = 1;
     public static final double kTicksPerRotation = 4096;
 
+    public static final double kDriveTurnP = 0.0;
+    public static final double kDriveTurnI = 0.0;
+    public static final double kDriveTurnD = 0.0;
+    public static final double kMaxTurnRateDegPerS = 0.0;
+    public static final double kMaxTurnAccelerationDegPerSSquared = 0.0;
+    public static final double kTurnToleranceDeg = 0.0;
+    public static final double kTurnRateToleranceDegPerS = 0.0;
+
     // Drivetrain Characterization & Ramsete Constants
     public static final double ksVolts = 0;
     public static final double kvVoltSecondsPerMeter = 0;

@@ -70,6 +70,10 @@ public class Drivetrain extends SubsystemBase {
 
   }
 
+  public void arcadeDrive(double throttle, double turn) {
+    setDriveMotors(throttle + turn, throttle - turn);
+  }
+
   public void setDriveMotors(double leftValue, double rightValue) {
     leftDriveMaster.set(leftValue);
     rightDriveSlave.set(rightValue);
@@ -94,6 +98,10 @@ public class Drivetrain extends SubsystemBase {
     * the opposite behavior, so you should negate the gyro angle.
     */
     return Rotation2d.fromDegrees(-gyro.getYaw());
+  }
+
+  public double getHeadingAsAngle() {
+    return getHeading().getDegrees();
   }
 
   public void stop() {
