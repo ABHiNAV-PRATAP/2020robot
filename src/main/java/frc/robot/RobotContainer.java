@@ -137,7 +137,7 @@ public class RobotContainer {
         new RotateToAngle(
           drivetrain, 
           // () -> drivetrain.getHeading().getDegrees() + shooter.getYawToTarget()
-          drivetrain.getHeading().getDegrees() + shooter.getYawToTarget()
+          drivetrain.getHeading().getDegrees() - shooter.getYawToTarget() // Subtract if CCW positive, Add if CW positive
         )
       ).andThen(
         new VisionAssistedShoot(
