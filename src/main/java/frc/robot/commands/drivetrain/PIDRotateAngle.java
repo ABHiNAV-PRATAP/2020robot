@@ -7,51 +7,55 @@
 
 package frc.robot.commands.drivetrain;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
 import frc.util.MathUtil;
 
-public class ArcadeDrive extends CommandBase {
-  private final Drivetrain drivetrain;
-  private final DoubleSupplier throttleSupplier;
-  private final DoubleSupplier turnSupplier;
-  private final DoubleSupplier accelerationSupplier;
+public class PIDRotateAngle extends CommandBase {
 
+  // private double[] samples;
+  // private int i;
+
+  private final Drivetrain drivetrain;
+  private final double setpoint;
+
+  private final double kP = 0.005;
+  private final double kI = 0.005;
+  private final double kD = 0.0001;
+
+  private double previousError = 0;
+  private double error = 0;
+  private double accumulatedError = 0;
   /**
-   * Creates a new ArcadeDrive.
+   * Creates a new PIDRotateAngle.
    */
-  public ArcadeDrive(Drivetrain drivetrain, DoubleSupplier throttleSupplier, DoubleSupplier turnSupplier, DoubleSupplier accelerationSupplier) {
+  public PIDRotateAngle(Drivetrain drivetrain, double setpoint) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivetrain = drivetrain;
-    this.throttleSupplier = throttleSupplier;
-    this.turnSupplier = turnSupplier;
-    this.accelerationSupplier = accelerationSupplier;
+    this.setpoint = setpoint;
+    // this.samples = new double[50];
+    // i = 0;
     addRequirements(drivetrain);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    drivetrain.stop();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double speedMultiplierRaw = accelerationSupplier.getAsDouble();
-    double throttle = throttleSupplier.getAsDouble();
-    double turn = Math.pow(turnSupplier.getAsDouble(), 3);
-    
-    double speedMultiplier = MathUtil.normalize(1, -1, 0.2, 1, speedMultiplierRaw);
+    error = setpoint - drivetrain.getHeadingAsAngle();
+    accumulatedError+=error * Constants.kDT;
+    // samples[i % 50] = error;
+    double output = (kP * error) + (kD * (error - previousError) / Constants.kDT) + (kI * accumulatedError);
+    output = -MathUtil.constrain(-0.3, 0.3, output);
+    drivetrain.arcadeDrive(0, output);
+    previousError = error;
     System.out.println(drivetrain.getHeadingAsAngle());
-    // System.out.println("Speed Multiplier " + speedMultiplier);
-    // System.out.println("X " + turn);
-    // System.out.println("Y " + throttle);
-
-    drivetrain.setDriveMotors((throttle + turn) * speedMultiplier, (throttle - turn) * speedMultiplier);
+    // i++;
   }
 
   // Called once the command ends or is interrupted.
@@ -63,6 +67,16 @@ public class ArcadeDrive extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    // return MathUtil.withinTolerance(getSampleAverage(), setpoint, 5); // Within 5 degrees
+    // return MathUtil.withinTolerance(drivetrain.getHeadingAsAngle(), setpoint, 1);
     return false;
   }
+
+  // public double getSampleAverage() {
+  //   double sum = 0;
+  //   for(int i=0; i<50; i++) {
+  //     sum += samples[i];
+  //   }
+  //   return sum/50;
+  // }
 }

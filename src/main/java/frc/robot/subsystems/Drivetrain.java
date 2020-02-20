@@ -60,13 +60,17 @@ public class Drivetrain extends SubsystemBase {
     leftDriveSlave.follow(leftDriveMaster);
     rightDriveSlave.follow(rightDriveMaster);
 
-    resetGyro();
     resetEncoders();
 
-    leftDriveMaster.setNeutralMode(NeutralMode.Coast);
-    rightDriveMaster.setNeutralMode(NeutralMode.Coast);
-    leftDriveSlave.setNeutralMode(NeutralMode.Coast);
-    rightDriveSlave.setNeutralMode(NeutralMode.Coast);
+    leftDriveMaster.setNeutralMode(NeutralMode.Brake);
+    rightDriveMaster.setNeutralMode(NeutralMode.Brake);
+    leftDriveSlave.setNeutralMode(NeutralMode.Brake);
+    rightDriveSlave.setNeutralMode(NeutralMode.Brake);
+
+    // leftDriveMaster.setNeutralMode(NeutralMode.Coast);
+    // rightDriveMaster.setNeutralMode(NeutralMode.Coast);
+    // leftDriveSlave.setNeutralMode(NeutralMode.Coast);
+    // rightDriveSlave.setNeutralMode(NeutralMode.Coast);
 
   }
 
@@ -138,13 +142,13 @@ public class Drivetrain extends SubsystemBase {
     odometry.resetPosition(poseMeters, getHeading());
     leftDriveMaster.setSelectedSensorPosition(0);
     rightDriveMaster.setSelectedSensorPosition(0);
-
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     // odometry.update(getHeading(), leftDriveMaster.getSelectedSensorPosition() * Constants.kDistancePerTick, rightDriveMaster.getSelectedSensorPosition() * Constants.kDistancePerTick);
-    System.out.println("gyro: " + gyro.getYaw());
+    // System.out.println("left: " + leftDriveMaster.getSelectedSensorPosition());
+    // System.out.println("right: " + rightDriveMaster.getSelectedSensorPosition());
   }
 }

@@ -23,4 +23,18 @@ public class MathUtil {
     public static double normalize(double min, double max, double a, double b, double x) {
 		return (((b-a) * (x-min)) / (max-min)) + a;
 	}
+
+	public static double constrain(double min, double max, double x) {
+		if(x < min) {
+			return min;
+		}
+		if (x > max) {
+			return max;
+		}
+		return x;
+	}
+
+	public static boolean withinTolerance(double a, double b, double tolerance) {
+		return Math.abs(a - b) <= tolerance;
+	}
 }
