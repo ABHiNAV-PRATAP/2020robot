@@ -16,32 +16,27 @@ public class VisionLEDs extends SubsystemBase {
    */
 
   Solenoid led1 = new Solenoid(0);
-
   Solenoid led2 = new Solenoid(1);
 
   public VisionLEDs() {
-    TurnOffLEDs();
+    turnOff();
   }
 
-  public void TurnOnLEDs()
-  {
-
+  public void turnOn() {
     setLED1(true);
     setLED2(true);
   }
 
-  public void TurnOffLEDs()
-  {
+  public void turnOff() {
     setLED1(false);
     setLED2(false);
   }
 
-  public void setLED1(boolean on)
-  {
+  public void setLED1(boolean on) {
     led1.set(on);
   }
-  public void setLED2(boolean on)
-  {
+  
+  public void setLED2(boolean on) {
     led2.set(on);
   }
 

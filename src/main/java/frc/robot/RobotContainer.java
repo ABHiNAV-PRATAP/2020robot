@@ -7,35 +7,20 @@
 
 package frc.robot;
 
-import java.io.File;
-import java.nio.file.Paths;
-import java.util.List;
-
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj.controller.RamseteController;
-import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.geometry.Translation2d;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
-import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.drivetrain.ExampleCommand;
-import frc.robot.commands.drivetrain.TankDrive;
+import frc.robot.commands.drivetrain.PIDRotateAngle;
+import frc.robot.commands.drivetrain.RotateToAnglePID;
 import frc.robot.commands.intake.IntakeCell;
-import frc.robot.commands.shooter.Shoot;
+import frc.robot.commands.intake.OuttakeCell;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -49,19 +34,20 @@ import frc.robot.subsystems.VisionLEDs;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final Drivetrain drivetrain = new Drivetrain();
+  public final Drivetrain drivetrain = new Drivetrain();
 
   private final Intake intake = new Intake();
 
-  private final Shooter shooter;
+  private final Shooter shooter = new Shooter();
 
   private Joystick driveJoystick = new Joystick(Constants.kDriveJoystickPort);
 
-  private final JoystickButton shoot = new JoystickButton(driveJoystick, 1);
+  private final JoystickButton shoot = new JoystickButton(driveJoystick, 8);
 
   SendableChooser<Trajectory> autonomousTrajectories;
 
-  private final JoystickButton intakeCell = new JoystickButton(driveJoystick, 2);
+  private final JoystickButton intakeCell = new JoystickButton(driveJoystick, 3);
+  private final JoystickButton outtakeCell = new JoystickButton(driveJoystick, 4);
 
   private final VisionLEDs leds = new VisionLEDs();
 
@@ -74,7 +60,6 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
-    shooter = new Shooter(leds);
 
     // drivetrain.setDefaultCommand(
     //   new TankDrive(
@@ -123,11 +108,34 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    shoot.whileHeld(new Shoot(shooter, 
-    () -> shooter.topSetpointShuffleboard.getDouble(0), 
-    () -> shooter.bottomSetpointShuffleboard.getDouble(0),
-    leds));
+    // shoot.whileHeld(new Shoot(shooter, 
+    // () -> shooter.topSetpointShuffleboard.getDouble(0), 
+    // () -> shooter.bottomSetpointShuffleboard.getDouble(0),
+    // leds));
+
+    // shoot.whileHeld(
+    //   new UpdateTargetPose(
+    //     shooter,
+    //     leds
+    //   ).andThen(
+    //     new RotateToAngle(
+    //       drivetrain, 
+    //       // () -> drivetrain.getHeading().getDegrees() + shooter.getYawToTarget()
+    //       drivetrain.getHeading().getDegrees() - shooter.getYawToTarget() // Subtract if CCW positive, Add if CW positive
+    //     )
+    //   ).andThen(
+    //     new VisionAssistedShoot(
+    //       shooter
+    //     )
+    //   )
+    // );
+
+    shoot.whileHeld(
+      new RunCommand(() -> leds.turnOn(), leds).andThen(new RunCommand(() -> leds.turnOff(), leds))
+    );
+
     intakeCell.whileHeld(new IntakeCell(intake));
+    outtakeCell.whileHeld(new OuttakeCell(intake));
 
   }
 

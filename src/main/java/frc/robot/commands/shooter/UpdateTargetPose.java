@@ -7,73 +7,52 @@
 
 package frc.robot.commands.shooter;
 
-import java.lang.annotation.Target;
-import java.util.function.DoubleSupplier;
-
-import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.VisionLEDs;
 
-public class CenterToVisionTarget extends CommandBase {
+public class UpdateTargetPose extends CommandBase {
+  private final Shooter shooter;
+  private final VisionLEDs leds;
+
+  private boolean foundValidTarget2d;
+  private boolean foundValidTarget3d;
+
   /**
-   * Creates a new CenterToVisionTarget.
+   * Creates a new UpdateTargetPose.
+   * Updates both VisionTargetPose2d and VisionTargetPose3d in Shooter subsystem
    */
-
-   private final double kP = 0, kD = 0;
-   private final double tolerance = 5;
-  PIDController centerPID = new PIDController(kP, 0, kD);
-  DoubleSupplier yaw;
-  Drivetrain drivetrain;
-  private final double target = 0;
-
-  double error = 0;
-
-  public CenterToVisionTarget(Drivetrain drivetrain, DoubleSupplier yaw) {
+  public UpdateTargetPose(Shooter shooter, VisionLEDs leds) {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(drivetrain);
-    this.yaw = yaw;
-    this.drivetrain = drivetrain;
+    this.shooter = shooter;
+    this.leds = leds;
+    addRequirements(shooter, leds);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    leds.turnOn();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
-    error = target - yaw.getAsDouble();
-
-    if (error > tolerance)
-    {
-      drivetrain.setDriveMotors(-0.1, 0.1);
-    }
-    else if (error < -tolerance)
-    {
-      drivetrain.setDriveMotors(0.1, 0.1);
-    }
-    
+    if(!foundValidTarget2d)
+      foundValidTarget2d = shooter.setTargetPose2d(shooter.getTargetPose2d());
+    if(!foundValidTarget3d)
+      foundValidTarget3d = shooter.setTargetPose3d(shooter.getTargetPose3d());
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    drivetrain.stop();
-    System.out.println("done centering");
+    leds.turnOff();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(Math.abs(error) <= tolerance)
-    {
-      return true;
-    }
-    else
-    {
-    return false;
-    }
+    return foundValidTarget2d && foundValidTarget3d;
   }
 }

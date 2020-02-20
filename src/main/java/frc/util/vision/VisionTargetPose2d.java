@@ -21,7 +21,7 @@ public class VisionTargetPose2d {
 		area = 0;
 	}
 
-	public VisionTargetPose2d(double pitch, double yaw, double angle) {
+	public VisionTargetPose2d(double pitch, double yaw, double area) {
 		this.pitch = pitch;
 		this.yaw = yaw;
 		this.area = area;
