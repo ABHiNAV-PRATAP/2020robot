@@ -30,6 +30,7 @@ public class VisionAssistedShoot extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    // System.out.println("Initializing VisionAssistedShoot command");
     ShooterProfile currentProfile = shooter.getShooterProfileFromInterpolator(shooter.getXToTarget());
     topShooterSpeed = currentProfile.getTopShooterSpeed();
     bottomShooterSpeed = currentProfile.getBottomShooterSpeed();

@@ -7,10 +7,14 @@
 
 package frc.robot.commands.drivetrain;
 
+import java.util.Map;
+
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.robot.subsystems.Drivetrain;
-import frc.util.MathUtil;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -20,21 +24,24 @@ public class RotateToAnglePID extends PIDCommand {
    * Creates a new RotateToAnglePID.
    */
 
-    Drivetrain dt;
+    static Drivetrain dt;
+
+  private static double ff = 0.00;
+  NetworkTableEntry ffEntry = Shuffleboard.getTab("dt").add("ff", ff).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0.0, "max", 0.5)).getEntry();
 
 
   public RotateToAnglePID(Drivetrain dt, double setpoint) {
     super(
         // The controller that the command will use
-        new PIDController(0.01, 0.01, 0.002),
+        new PIDController(0.01, 0.00, 0.000),
         // This should return the measurement
         () -> -dt.getHeadingAsAngle(),
         // This should return the setpoint (can also be a constant)
         () -> 30,
         // This uses the output
         output -> { 
-          System.out.println(dt.getHeadingAsAngle());
-          dt.arcadeDrive(0, MathUtil.constrain(-0.3, 0.3, output));
+          setDT();
+          // dt.arcadeDrive(0, setD);//MathUtil.constrain(-0.3, 0.3, output));
           // Use the output here
         });
         addRequirements(dt);
@@ -46,6 +53,17 @@ public class RotateToAnglePID extends PIDCommand {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(getController().getPositionError()) < 1;
+    //return Math.abs(getController().getPositionError()) < 1;
+    return false;
+  }
+
+  @Override
+  public void execute() {
+    ff = ffEntry.getDouble(ff);
+    System.out.println(dt.getHeadingAsAngle());
+  }
+
+  public static void setDT() {
+    dt.arcadeDrive(0, ff);
   }
 }

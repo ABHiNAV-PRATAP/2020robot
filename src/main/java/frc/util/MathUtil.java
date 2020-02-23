@@ -37,4 +37,8 @@ public class MathUtil {
 	public static boolean withinTolerance(double a, double b, double tolerance) {
 		return Math.abs(a - b) <= tolerance;
 	}
+
+	public static double sign(double a) {
+		return a / Math.abs(a);
+	}
 }

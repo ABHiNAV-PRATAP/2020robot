@@ -46,12 +46,11 @@ public class ArcadeDrive extends CommandBase {
     double turn = Math.pow(turnSupplier.getAsDouble(), 3);
     
     double speedMultiplier = MathUtil.normalize(1, -1, 0.2, 1, speedMultiplierRaw);
-    System.out.println(drivetrain.getHeadingAsAngle());
     // System.out.println("Speed Multiplier " + speedMultiplier);
     // System.out.println("X " + turn);
     // System.out.println("Y " + throttle);
 
-    drivetrain.setDriveMotors((throttle + turn) * speedMultiplier, (throttle - turn) * speedMultiplier);
+    drivetrain.setDriveMotors(0.5 * ((throttle + turn) * speedMultiplier), ((throttle - turn) * speedMultiplier));
   }
 
   // Called once the command ends or is interrupted.

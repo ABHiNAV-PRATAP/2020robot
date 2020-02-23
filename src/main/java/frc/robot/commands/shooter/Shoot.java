@@ -9,9 +9,12 @@ package frc.robot.commands.shooter;
 
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.VisionLEDs;
+import frc.util.MathUtil;
 
 public class Shoot extends CommandBase {
   private final Shooter shooter;
@@ -32,7 +35,8 @@ public class Shoot extends CommandBase {
 
   @Override
   public void initialize() {
-    shooter.setServoAngle(60);
+    System.out.println("Started Shoot");
+    //shooter.setServoAngle(60);
     leds.turnOn();
     // shooter.tpid.setTolerance(1);
     // shooter.bpid.setTolerance(1);
@@ -45,6 +49,9 @@ public class Shoot extends CommandBase {
       double bsp = bottomSetpoint.getAsDouble();
       double tv = shooter.getTopVelocity();
       double bv = shooter.getBottomVelocity();
+      if(MathUtil.withinTolerance(tv, tsp, 3)) {
+        shooter.servoOpen();
+      }
       shooter.tpid.setSetpoint(tsp);
       shooter.bpid.setSetpoint(bsp);
       double calctop = shooter.tpid.calculate(tv);
@@ -61,8 +68,8 @@ public class Shoot extends CommandBase {
   public void end(boolean interrupted) {
     shooter.setTopMotorVoltage(0);
     shooter.setBottomMotorVoltage(0);
-    shooter.setServoAngle(0);
-    leds.turnOff();
+    shooter.servoClose();
+    // leds.turnOff();
   }
 
   // Returns true when the command should end.

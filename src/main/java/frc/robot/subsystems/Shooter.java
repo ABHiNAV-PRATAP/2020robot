@@ -34,6 +34,9 @@ public class Shooter extends SubsystemBase {
   private VisionTargetPose2d currentTargetPose2d;
   private VisionTargetPose3d currentTargetPose3d;
 
+  private double x;
+  private double yaw;
+
   private Interpolator interpolator;
   
   double tkP = 0.0075; //0.957;
@@ -76,7 +79,10 @@ public class Shooter extends SubsystemBase {
   NetworkTableEntry bottomV = tab.add("bottom V ", bkV).withWidget(BuiltInWidgets.kTextView).getEntry();
   public NetworkTableEntry topSetpointShuffleboard = tab.add("Top Setpoint", 0).withSize(2, 1).withWidget(BuiltInWidgets.kTextView).getEntry();
   public NetworkTableEntry bottomSetpointShuffleboard = tab.add("Bottom Setpoint", 0).withSize(2, 1).withWidget(BuiltInWidgets.kTextView).getEntry();
-  
+
+  NetworkTableEntry xDistanceToTarget = tab.add("x distance", x).withWidget(BuiltInWidgets.kTextView).getEntry();
+  NetworkTableEntry yawToTarget = tab.add("yaw", yaw).withWidget(BuiltInWidgets.kTextView).getEntry();
+
   NetworkTableInstance table = NetworkTableInstance.getDefault();
   NetworkTable cameraTable = table.getTable("chameleon-vision").getSubTable("infuzed-ps3");
   /**
@@ -89,6 +95,8 @@ public class Shooter extends SubsystemBase {
     bottomMotor.setInverted(true);
     topMotor.getEncoder().setPosition(0);
     bottomMotor.getEncoder().setPosition(0);
+
+    servoClose();
 
     interpolator = new Interpolator(
       // Add and modify these profiles to match the experimental data we collect
@@ -105,6 +113,15 @@ public class Shooter extends SubsystemBase {
     topMotor.setVoltage(value);
   }
 
+  public void servoClose()
+  {
+    setServoAngle(90);
+  }
+  public void servoOpen()
+  {
+    setServoAngle(0);
+  }
+
   public void setServoAngle(double degrees) {
     servo.setAngle(degrees);
   }
@@ -119,6 +136,7 @@ public class Shooter extends SubsystemBase {
 
   public VisionTargetPose2d getTargetPose2d() {
     if (!cameraTable.getEntry("isValid").getBoolean(false)) {
+      // System.out.println("Invalid 2d");
       return null;
     }
     return new VisionTargetPose2d(
@@ -155,48 +173,68 @@ public class Shooter extends SubsystemBase {
     return true;
   }
 
+  public boolean hasValidTargetPose2d() {
+    return currentTargetPose2d != null;
+  }
+
+  public boolean hasValidTargetPose3d() {
+    return currentTargetPose3d != null;
+  }
+
+  public void resetTargetPose2d() {
+    currentTargetPose2d = null;
+  }
+
+  public void resetTargetPose3d() {
+    currentTargetPose3d = null;
+  }
+
   public Double getXToTarget() {
+    if(currentTargetPose3d == null) {
+      return 0.0;
+    }
     return currentTargetPose3d.getX();
   }
 
-  public Double getYToTarget() { 
+  public Double getYToTarget() {
+    if(currentTargetPose3d == null) {
+      return 0.0;
+    } 
     return currentTargetPose3d.getY();
   }
 
-  public Double getAngleToTarget() { 
+  public Double getAngleToTarget() {
+    if(currentTargetPose3d == null) {
+      return 0.0;
+    }
     return currentTargetPose3d.getAngle();
   }
 
   public Double getPitchToTarget() {
+    if(currentTargetPose2d == null) {
+      return 0.0;
+    }
     return currentTargetPose2d.getPitch();
   }
 
   public Double getYawToTarget() {
+    if(currentTargetPose2d == null) {
+      return 0.0;
+    }
     return currentTargetPose2d.getYaw();
   }
 
   public Double getAreaOfTarget() {
+    if(currentTargetPose2d == null) {
+      return 0.0;
+    }
     return currentTargetPose2d.getArea();
   }
 
   @Override
   public void periodic() {
-    topMotorVoltage.setDouble(topMotor.getBusVoltage());
-    bottomMotorVoltage.setDouble(bottomMotor.getBusVoltage());
-    topMotorVelocity.setDouble(getTopVelocity());
-    bottomMotorVelocity.setDouble(getBottomVelocity());
-    tpid.setP(topP.getDouble(tkP));
-    bpid.setP(bottomP.getDouble(bkP));
-    bpid.setD(bottomP.getDouble(bkD));
-    bff = new SimpleMotorFeedforward(bottomP.getDouble(0.126), bkV);
-    // System.out.println(getDistanceFromPose());
-    // Double[] pose = getTargetPose();
-    // System.out.println("x" + pose[0]);
-    // System.out.println("y" + pose[1]);
-    // System.out.println("angle" + pose[2]);
-// System.out.println(bff.ks);
-    // System.out.println("Top encoder ticks:" + topMotor.getEncoder().getPosition());
-    // System.out.println("Bottom encoder ticks: " + bottomMotor.getEncoder().getPosition());
+    x = getXToTarget();
+    yaw = getYawToTarget();
   }
   public double getTopVelocity() {
     return topMotor.getEncoder().getVelocity() / 60;

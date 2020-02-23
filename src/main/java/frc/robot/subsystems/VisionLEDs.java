@@ -9,6 +9,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.commands.shooter.UpdateTargetPose;
 
 public class VisionLEDs extends SubsystemBase {
   /**
@@ -19,7 +20,7 @@ public class VisionLEDs extends SubsystemBase {
   Solenoid led2 = new Solenoid(1);
 
   public VisionLEDs() {
-    turnOff();
+    turnOn();
   }
 
   public void turnOn() {

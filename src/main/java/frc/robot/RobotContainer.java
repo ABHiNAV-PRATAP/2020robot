@@ -14,13 +14,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drivetrain.ArcadeDrive;
+import frc.robot.commands.drivetrain.BangBangRotate;
 import frc.robot.commands.drivetrain.ExampleCommand;
 import frc.robot.commands.drivetrain.PIDRotateAngle;
 import frc.robot.commands.drivetrain.RotateToAnglePID;
 import frc.robot.commands.intake.IntakeCell;
 import frc.robot.commands.intake.OuttakeCell;
+import frc.robot.commands.shooter.Shoot;
+import frc.robot.commands.shooter.UpdateTargetPose;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -42,7 +46,11 @@ public class RobotContainer {
 
   private Joystick driveJoystick = new Joystick(Constants.kDriveJoystickPort);
 
-  private final JoystickButton shoot = new JoystickButton(driveJoystick, 8);
+  private final JoystickButton align = new JoystickButton(driveJoystick, 8);
+  
+  private final JoystickButton flipDT = new JoystickButton(driveJoystick, 2);
+  
+  private final JoystickButton shoot = new JoystickButton(driveJoystick, 1);
 
   SendableChooser<Trajectory> autonomousTrajectories;
 
@@ -71,12 +79,18 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(
       new ArcadeDrive(
         drivetrain,
-        () -> driveJoystick.getY(),
+        () -> -driveJoystick.getY(),
         () -> driveJoystick.getX(),
         () -> driveJoystick.getThrottle()
       )
     );
     
+    // leds.setDefaultCommand(
+    //   new UpdateTargetPose(
+    //     shooter, 
+    //     leds)
+    // );
+
     // Shuffleboard.getTab("Auto Commands").add("Auto Mode", autonomousTrajectories);
 
     // try 
@@ -108,31 +122,19 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    // shoot.whileHeld(new Shoot(shooter, 
-    // () -> shooter.topSetpointShuffleboard.getDouble(0), 
-    // () -> shooter.bottomSetpointShuffleboard.getDouble(0),
-    // leds));
+    new JoystickButton(driveJoystick, 9).whenPressed(new RunCommand(() -> shooter.setServoAngle(60)));
 
-    // shoot.whileHeld(
-    //   new UpdateTargetPose(
-    //     shooter,
-    //     leds
-    //   ).andThen(
-    //     new RotateToAngle(
-    //       drivetrain, 
-    //       // () -> drivetrain.getHeading().getDegrees() + shooter.getYawToTarget()
-    //       drivetrain.getHeading().getDegrees() - shooter.getYawToTarget() // Subtract if CCW positive, Add if CW positive
-    //     )
-    //   ).andThen(
-    //     new VisionAssistedShoot(
-    //       shooter
-    //     )
-    //   )
-    // );
-
-    shoot.whileHeld(
-      new RunCommand(() -> leds.turnOn(), leds).andThen(new RunCommand(() -> leds.turnOff(), leds))
+    align.whileHeld(
+      new PIDRotateAngle(
+        drivetrain,
+        shooter,
+        leds
+      )
     );
+
+    shoot.whileHeld(new Shoot(shooter, () -> shooter.topSetpointShuffleboard.getDouble(0), () -> shooter.bottomSetpointShuffleboard.getDouble(0), leds));
+
+    flipDT.whenPressed(new RunCommand(() -> drivetrain.flipDT(), drivetrain));
 
     intakeCell.whileHeld(new IntakeCell(intake));
     outtakeCell.whileHeld(new OuttakeCell(intake));
@@ -145,65 +147,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // var autoVoltageConstraint =
-    //     new DifferentialDriveVoltageConstraint(
-    //         new SimpleMotorFeedforward(Constants.ksVolts,
-    //                                    Constants.kvVoltSecondsPerMeter,
-    //                                    Constants.kaVoltSecondsSquaredPerMeter),
-    //         Constants.kDriveKinematics,
-    //         10);
-
-    // TrajectoryConfig config =
-    //     new TrajectoryConfig(Constants.kMaxSpeedMetersPerSecond,
-    //                          Constants.kMaxAccelerationMetersPerSecondSquared)           
-    //         .setKinematics(Constants.kDriveKinematics)
-    //         .addConstraint(autoVoltageConstraint);
-
-    // Trajectory drive3mTrajectory = TrajectoryGenerator.generateTrajectory(
-    //     new Pose2d(0, 0, new Rotation2d(0)),
-    //     List.of(
-    //         new Translation2d(1, 0),
-    //         new Translation2d(2, 0)
-    //     ),
-    //     new Pose2d(3, 0, new Rotation2d(0)),
-    //     config
-    // );
-
-    // Trajectory traj = null;
-
-    // try 
-    // {
-    //   traj = autonomousTrajectories.getSelected();
-    //   if (traj == null)
-    //   {
-    //     throw new Exception();
-    //   }
-    // } 
-    // catch (Exception e) 
-    // {
-    //   System.out.println("Unable to find autonomous file!");
-    //   System.out.println("Defaulting to Drive 3 Meters Forward");
-    //   traj = drive3mTrajectory;
-    // }
-
-    // RamseteCommand ramseteCommand = new RamseteCommand(
-    //     traj,
-    //     drivetrain::getPose,
-    //     new RamseteController(Constants.kRamseteBeta, Constants.kRamseteZeta),
-    //     new SimpleMotorFeedforward(Constants.ksVolts,
-    //                                Constants.kvVoltSecondsPerMeter,
-    //                                Constants.kaVoltSecondsSquaredPerMeter),
-    //     Constants.kDriveKinematics,
-    //     drivetrain::getWheelSpeeds,
-    //     new PIDController(Constants.kPDriveVelocity, 0, 0),
-    //     new PIDController(Constants.kPDriveVelocity, 0, 0),
-    //     // RamseteCommand passes volts to the callback
-    //     drivetrain::setDriveMotorVoltage,
-    //     drivetrain
-    // );
-
-    // Run path following command, then stop at the end.
-    // return ramseteCommand.andThen(() -> drivetrain.setDriveMotorVoltage(0, 0));
     return new ExampleCommand();
   }
 }
