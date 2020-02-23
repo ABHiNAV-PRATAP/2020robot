@@ -32,6 +32,8 @@ public class Drivetrain extends SubsystemBase {
 
   private AHRS gyro;
 
+  private boolean flipped = false;
+
   /**
    * Creates a new Drivetrain.
    */
@@ -60,30 +62,63 @@ public class Drivetrain extends SubsystemBase {
     leftDriveSlave.follow(leftDriveMaster);
     rightDriveSlave.follow(rightDriveMaster);
 
-    resetGyro();
     resetEncoders();
 
-    leftDriveMaster.setNeutralMode(NeutralMode.Coast);
-    rightDriveMaster.setNeutralMode(NeutralMode.Coast);
-    leftDriveSlave.setNeutralMode(NeutralMode.Coast);
-    rightDriveSlave.setNeutralMode(NeutralMode.Coast);
+    leftDriveMaster.setNeutralMode(NeutralMode.Brake);
+    rightDriveMaster.setNeutralMode(NeutralMode.Brake);
+    leftDriveSlave.setNeutralMode(NeutralMode.Brake);
+    rightDriveSlave.setNeutralMode(NeutralMode.Brake);
+
+    // leftDriveMaster.setNeutralMode(NeutralMode.Coast);
+    // rightDriveMaster.setNeutralMode(NeutralMode.Coast);
+    // leftDriveSlave.setNeutralMode(NeutralMode.Coast);
+    // rightDriveSlave.setNeutralMode(NeutralMode.Coast);
 
   }
 
+  public void arcadeDrive(double throttle, double turn) {
+    setDriveMotors(0.5 * (throttle + turn), throttle - turn);
+  }
+
   public void setDriveMotors(double leftValue, double rightValue) {
-    leftDriveMaster.set(leftValue);
-    rightDriveSlave.set(rightValue);
+    if (!flipped)
+    {
+      leftDriveMaster.set(leftValue);
+      rightDriveSlave.set(rightValue);
+    }
+    if (flipped)
+    {
+      leftDriveMaster.set(-rightValue);
+      rightDriveSlave.set(-leftValue);
+    }
   }
 
   public void setDriveMotorVoltage(double leftVoltage, double rightVoltage)
   {
-    leftDriveMaster.setVoltage(leftVoltage);
-    rightDriveMaster.setVoltage(rightVoltage);
+    if (!flipped)
+    {
+      leftDriveMaster.set(leftVoltage);
+      rightDriveSlave.set(rightVoltage);
+    }
+    if (flipped)
+    {
+      leftDriveMaster.set(-rightVoltage);
+      rightDriveSlave.set(-leftVoltage);
+    }
   }
 
   public void setDriveMotors(double value) {
-    leftDriveMaster.set(value);
-    rightDriveSlave.set(value);
+    if (!flipped)
+    {
+      leftDriveMaster.set(value);
+      rightDriveSlave.set(value);
+    }
+    if (flipped)
+    {
+      leftDriveMaster.set(-value);
+      rightDriveMaster.set(-value);
+    }
+    
   }
 
   public Rotation2d getHeading() {
@@ -93,7 +128,11 @@ public class Drivetrain extends SubsystemBase {
     * your gyroscope angle should increase. By default, WPILib gyros exhibit 
     * the opposite behavior, so you should negate the gyro angle.
     */
-    return Rotation2d.fromDegrees(-gyro.getYaw());
+    return Rotation2d.fromDegrees(-gyro.getAngle());//-gyro.getYaw());
+  }
+
+  public double getHeadingAsAngle() {
+    return getHeading().getDegrees();
   }
 
   public void stop() {
@@ -105,6 +144,11 @@ public class Drivetrain extends SubsystemBase {
   {
     leftDriveMaster.setSelectedSensorPosition(0);
     rightDriveMaster.setSelectedSensorPosition(0);
+  }
+
+  public void flipDT()
+  {
+    flipped = !flipped;
   }
 
   public void resetGyro()
@@ -130,13 +174,14 @@ public class Drivetrain extends SubsystemBase {
     odometry.resetPosition(poseMeters, getHeading());
     leftDriveMaster.setSelectedSensorPosition(0);
     rightDriveMaster.setSelectedSensorPosition(0);
-
   }
 
   @Override
   public void periodic() {
+    // System.out.println("Current heading: " + getHeadingAsAngle());
     // This method will be called once per scheduler run
     // odometry.update(getHeading(), leftDriveMaster.getSelectedSensorPosition() * Constants.kDistancePerTick, rightDriveMaster.getSelectedSensorPosition() * Constants.kDistancePerTick);
-    System.out.println("gyro: " + gyro.getYaw());
+    // System.out.println("left: " + leftDriveMaster.getSelectedSensorPosition());
+    // System.out.println("right: " + rightDriveMaster.getSelectedSensorPosition());
   }
 }
