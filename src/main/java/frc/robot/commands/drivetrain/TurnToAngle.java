@@ -4,53 +4,47 @@
 /* must be accompanied by the FIRST BSD license file in the root directory of */
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
-
 package frc.robot.commands.drivetrain;
-
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
-import frc.util.MathUtil;
 
-public class ArcadeDrive extends CommandBase {
+public class TurnToAngle extends CommandBase {
   private final Drivetrain drivetrain;
-  private final DoubleSupplier throttleSupplier;
-  private final DoubleSupplier turnSupplier;
-  private final DoubleSupplier accelerationSupplier;
+  private double setpoint;
 
+  private final double kP = 0.05;//0.0375; //0.05; // 0.06//0.0825;//0.075;// 0.0875; // 0.09; //0.1; // 0.1125;//0.125; //0.15;
+  private final double kD = 0.008;// 0.004;//0.001;//0.5;//0.001; //0.011;// 0.009875;// 0.00975;
+  
+  private double previousError = 0;
+  private double error = 0;
+  private int stopAccumulator;
+  
   /**
-   * Creates a new ArcadeDrive.
+   * Creates a new PIDRotateAngle.
    */
-  public ArcadeDrive(Drivetrain drivetrain, DoubleSupplier throttleSupplier, DoubleSupplier turnSupplier, DoubleSupplier accelerationSupplier) {
+  public TurnToAngle(Drivetrain drivetrain, double setpoint) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivetrain = drivetrain;
-    this.throttleSupplier = throttleSupplier;
-    this.turnSupplier = turnSupplier;
-    this.accelerationSupplier = accelerationSupplier;
+    this.setpoint = setpoint;
     addRequirements(drivetrain);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    drivetrain.stop();
+    System.out.println("Started Rotate");
+    stopAccumulator = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double speedMultiplierRaw = accelerationSupplier.getAsDouble();
-    double throttle = throttleSupplier.getAsDouble();
-    double turn = Math.pow(turnSupplier.getAsDouble(), 3);
-    
-    double speedMultiplier = MathUtil.normalize(1, -1, 0.2, 1, speedMultiplierRaw);
-    // System.out.println("Speed Multiplier " + speedMultiplier);
-    // System.out.println("X " + turn);
-    // System.out.println("Y " + throttle);
-
-    drivetrain.setDriveMotors(((throttle + turn) * speedMultiplier), ((throttle - turn) * speedMultiplier));
+    error = setpoint - drivetrain.getHeadingAsAngle();
+    double output = (kP * error) + (kD * (error - previousError) / Constants.kDT);
+    drivetrain.arcadeDrive(0, -output);
+    previousError = error;
+    System.out.println(drivetrain.getHeadingAsAngle());
   }
 
   // Called once the command ends or is interrupted.
@@ -62,6 +56,12 @@ public class ArcadeDrive extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    if(Math.abs(error)<=1){
+      stopAccumulator++;
+    }
+    else if(Math.abs(error)>=1){
+      stopAccumulator = 0;
+    }
+    return stopAccumulator>=10;
   }
 }

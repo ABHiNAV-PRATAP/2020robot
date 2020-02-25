@@ -21,6 +21,7 @@ import frc.robot.commands.drivetrain.BangBangRotate;
 import frc.robot.commands.drivetrain.ExampleCommand;
 import frc.robot.commands.drivetrain.PIDRotateAngle;
 import frc.robot.commands.drivetrain.RotateToAnglePID;
+import frc.robot.commands.drivetrain.TurnToAngle;
 import frc.robot.commands.intake.IntakeCell;
 import frc.robot.commands.intake.OuttakeCell;
 import frc.robot.commands.shooter.Shoot;
@@ -51,6 +52,7 @@ public class RobotContainer {
   private final JoystickButton flipDT = new JoystickButton(driveJoystick, 2);
   
   private final JoystickButton shoot = new JoystickButton(driveJoystick, 1);
+  private final JoystickButton rotate = new JoystickButton(driveJoystick, 10);
 
   SendableChooser<Trajectory> autonomousTrajectories;
 
@@ -133,6 +135,8 @@ public class RobotContainer {
     );
 
     shoot.whileHeld(new Shoot(shooter, () -> shooter.topSetpointShuffleboard.getDouble(0), () -> shooter.bottomSetpointShuffleboard.getDouble(0), leds));
+    
+    rotate.whenPressed(new TurnToAngle(drivetrain, 30));
 
     flipDT.whenPressed(new RunCommand(() -> drivetrain.flipDT(), drivetrain));
 
