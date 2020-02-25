@@ -21,10 +21,10 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
  */
 public final class Constants {
     // Drivetrain Motor Ports
-    public static final int kLeftDriveMasterPort = 1;
-    public static final int kLeftDriveSlavePort = 2;
-    public static final int kRightDriveMasterPort = 3;
-    public static final int kRightDriveSlavePort = 4;
+    public static final int kLeftDriveTalonPort = 1;
+    public static final int kLeftDriveVenomPort = 2;
+    public static final int kRightDriveTalonPort = 3;
+    public static final int kRightDriveVenomPort = 4;
 
     // OI
     public static final int kDriveJoystickPort = 0;

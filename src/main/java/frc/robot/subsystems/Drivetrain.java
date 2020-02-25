@@ -4,7 +4,6 @@
 /* must be accompanied by the FIRST BSD license file in the root directory of */
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
-
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -12,7 +11,10 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
+import com.playingwithfusion.CANVenom;
+import com.playingwithfusion.CANVenom.BrakeCoastMode;
 
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
@@ -22,74 +24,50 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class Drivetrain extends SubsystemBase {
-  
-  private WPI_TalonSRX leftDriveMaster;
-  private WPI_VictorSPX leftDriveSlave;
-  private WPI_TalonSRX rightDriveMaster;
-  private WPI_VictorSPX rightDriveSlave;
-
+  private WPI_TalonSRX leftDriveTalon;
+  private CANVenom leftDriveVenom;
+  private WPI_TalonSRX rightDriveTalon;
+  private CANVenom rightDriveVenom;
+  private SpeedControllerGroup leftMotors;
+  private SpeedControllerGroup rightMotors;
   DifferentialDriveOdometry odometry;
-
   private AHRS gyro;
-
   private boolean flipped = false;
-
   /**
    * Creates a new Drivetrain.
    */
   public Drivetrain() {
-    leftDriveMaster = new WPI_TalonSRX(Constants.kLeftDriveMasterPort);
-    leftDriveSlave = new WPI_VictorSPX(Constants.kLeftDriveSlavePort);
-    rightDriveMaster = new WPI_TalonSRX(Constants.kRightDriveMasterPort);
-    rightDriveSlave = new WPI_VictorSPX(Constants.kRightDriveSlavePort);
+    leftDriveTalon = new WPI_TalonSRX(Constants.kLeftDriveTalonPort);
+    leftDriveVenom = new CANVenom(Constants.kLeftDriveVenomPort);
+    rightDriveTalon = new WPI_TalonSRX(Constants.kRightDriveTalonPort);
+    rightDriveVenom = new CANVenom(Constants.kRightDriveVenomPort);
 
-    leftDriveMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
-    rightDriveMaster.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
+    leftMotors = new SpeedControllerGroup(leftDriveTalon, leftDriveVenom);
+    rightMotors = new SpeedControllerGroup(rightDriveTalon, rightDriveVenom);
 
-    
-    /*
-    * Need to check encoder values and drivetrain inversions
-    */
-
-    // leftDriveMaster.setSensorPhase(false);
-    // rightDriveMaster.setSensorPhase(true);
-    rightDriveMaster.setInverted(true);
-    rightDriveSlave.setInverted(true);
-
+    rightDriveTalon.setInverted(true);
+    rightDriveVenom.setInverted(true);
 
     gyro = new AHRS(Port.kMXP);
-
-    leftDriveSlave.follow(leftDriveMaster);
-    rightDriveSlave.follow(rightDriveMaster);
-
+    
     resetEncoders();
-
-    leftDriveMaster.setNeutralMode(NeutralMode.Brake);
-    rightDriveMaster.setNeutralMode(NeutralMode.Brake);
-    leftDriveSlave.setNeutralMode(NeutralMode.Brake);
-    rightDriveSlave.setNeutralMode(NeutralMode.Brake);
-
-    // leftDriveMaster.setNeutralMode(NeutralMode.Coast);
-    // rightDriveMaster.setNeutralMode(NeutralMode.Coast);
-    // leftDriveSlave.setNeutralMode(NeutralMode.Coast);
-    // rightDriveSlave.setNeutralMode(NeutralMode.Coast);
-
+    resetGyro();
   }
 
   public void arcadeDrive(double throttle, double turn) {
-    setDriveMotors(0.5 * (throttle + turn), throttle - turn);
+    setDriveMotors(throttle + turn, throttle - turn);
   }
 
   public void setDriveMotors(double leftValue, double rightValue) {
     if (!flipped)
     {
-      leftDriveMaster.set(leftValue);
-      rightDriveSlave.set(rightValue);
+      leftMotors.set(leftValue);
+      rightMotors.set(rightValue);
     }
     if (flipped)
     {
-      leftDriveMaster.set(-rightValue);
-      rightDriveSlave.set(-leftValue);
+      leftMotors.set(-rightValue);
+      rightMotors.set(-leftValue);
     }
   }
 
@@ -97,34 +75,31 @@ public class Drivetrain extends SubsystemBase {
   {
     if (!flipped)
     {
-      leftDriveMaster.set(leftVoltage);
-      rightDriveSlave.set(rightVoltage);
+      leftMotors.set(leftVoltage);
+      rightMotors.set(rightVoltage);
     }
     if (flipped)
     {
-      leftDriveMaster.set(-rightVoltage);
-      rightDriveSlave.set(-leftVoltage);
+      leftMotors.set(-rightVoltage);
+      rightMotors.set(-leftVoltage);
     }
   }
 
   public void setDriveMotors(double value) {
     if (!flipped)
     {
-      leftDriveMaster.set(value);
-      rightDriveSlave.set(value);
+      leftMotors.set(value);
     }
     if (flipped)
     {
-      leftDriveMaster.set(-value);
-      rightDriveMaster.set(-value);
+      rightMotors.set(-value);
     }
-    
   }
 
   public Rotation2d getHeading() {
     /**
     * 0 degrees / radians represents the robot angle when the robot is facing directly toward your 
-    * opponent’s alliance station. As your robot turns to the left, 
+    * opponent's alliance station. As your robot turns to the left, 
     * your gyroscope angle should increase. By default, WPILib gyros exhibit 
     * the opposite behavior, so you should negate the gyro angle.
     */
@@ -136,14 +111,14 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void stop() {
-    leftDriveMaster.set(0);
-    rightDriveMaster.set(0);
+    leftMotors.set(0);
+    rightMotors.set(0);
   }
 
   public void resetEncoders()
   {
-    leftDriveMaster.setSelectedSensorPosition(0);
-    rightDriveMaster.setSelectedSensorPosition(0);
+    leftDriveVenom.resetPosition();
+    rightDriveVenom.resetPosition();
   }
 
   public void flipDT()
@@ -156,15 +131,15 @@ public class Drivetrain extends SubsystemBase {
     gyro.reset();
   }
 
-  public DifferentialDriveWheelSpeeds getWheelSpeeds()
-  {
-    return new DifferentialDriveWheelSpeeds((double) leftDriveMaster.getSelectedSensorVelocity() * 10 * Constants.kDistancePerTick, (double) rightDriveMaster.getSelectedSensorVelocity() * 10 * Constants.kDistancePerTick);
-  }
-
-  public Pose2d getPose()
-  {
-    return odometry.getPoseMeters();
-  }
+  // public DifferentialDriveWheelSpeeds getWheelSpeeds()
+  // {
+  //   return new DifferentialDriveWheelSpeeds((double) leftDriveMaster.getSelectedSensorVelocity() * 10 * Constants.kDistancePerTick, (double) rightDriveMaster.getSelectedSensorVelocity() * 10 * Constants.kDistancePerTick);
+  // }
+  //
+  // public Pose2d getPose()
+  // {
+  //   return odometry.getPoseMeters();
+  // }
 
   /** 
    * @param poseMeters The position on the field the robot is at.
@@ -172,13 +147,13 @@ public class Drivetrain extends SubsystemBase {
   public void resetPose(Pose2d poseMeters)
   {
     odometry.resetPosition(poseMeters, getHeading());
-    leftDriveMaster.setSelectedSensorPosition(0);
-    rightDriveMaster.setSelectedSensorPosition(0);
+    // leftDriveMaster.setSelectedSensorPosition(0);
+    // rightDriveMaster.setSelectedSensorPosition(0);
   }
-
+  
   @Override
   public void periodic() {
-    // System.out.println("Current heading: " + getHeadingAsAngle());
+    System.out.println("Current heading: " + getHeadingAsAngle());
     // This method will be called once per scheduler run
     // odometry.update(getHeading(), leftDriveMaster.getSelectedSensorPosition() * Constants.kDistancePerTick, rightDriveMaster.getSelectedSensorPosition() * Constants.kDistancePerTick);
     // System.out.println("left: " + leftDriveMaster.getSelectedSensorPosition());
