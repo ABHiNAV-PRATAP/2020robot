@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.drivetrain.BangBangRotate;
+import frc.robot.commands.drivetrain.DriveDistanceStraight;
 import frc.robot.commands.drivetrain.ExampleCommand;
 import frc.robot.commands.drivetrain.PIDRotateAngle;
 import frc.robot.commands.drivetrain.RotateToAnglePID;
@@ -136,7 +137,11 @@ public class RobotContainer {
 
     shoot.whileHeld(new Shoot(shooter, () -> shooter.topSetpointShuffleboard.getDouble(0), () -> shooter.bottomSetpointShuffleboard.getDouble(0), leds));
     
-    rotate.whenPressed(new TurnToAngle(drivetrain, 30));
+    // rotate.whenPressed(new TurnToAngle(drivetrain, 30));
+    // rotate.whenPressed(new UpdateTargetPose(shooter, leds).andThen(new PIDRotateAngle(drivetrain, shooter, leds)));
+    // rotate.whenPressed(new PIDRotateAngle(drivetrain, shooter, leds));
+    // rotate.whenPressed(new UpdateTargetPose(shooter, leds));
+    rotate.whenPressed(new DriveDistanceStraight(drivetrain));
 
     flipDT.whenPressed(new RunCommand(() -> drivetrain.flipDT(), drivetrain));
 

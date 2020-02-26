@@ -153,7 +153,7 @@ public class Drivetrain extends SubsystemBase {
   
   @Override
   public void periodic() {
-    System.out.println("Current heading: " + getHeadingAsAngle());
+    // System.out.println("Current heading: " + getHeadingAsAngle());
     // This method will be called once per scheduler run
     // odometry.update(getHeading(), leftDriveMaster.getSelectedSensorPosition() * Constants.kDistancePerTick, rightDriveMaster.getSelectedSensorPosition() * Constants.kDistancePerTick);
     // System.out.println("left: " + leftDriveMaster.getSelectedSensorPosition());

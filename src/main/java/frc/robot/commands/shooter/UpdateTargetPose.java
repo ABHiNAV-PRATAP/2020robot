@@ -16,9 +16,6 @@ public class UpdateTargetPose extends CommandBase {
   private final Shooter shooter;
   private final VisionLEDs leds;
 
-  private boolean foundValidTarget2d;
-  private boolean foundValidTarget3d;
-
   /**
    * Creates a new UpdateTargetPose.
    * Updates both VisionTargetPose2d and VisionTargetPose3d in Shooter subsystem
@@ -27,15 +24,13 @@ public class UpdateTargetPose extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
     this.shooter = shooter;
     this.leds = leds;
-    foundValidTarget2d = false;
-    foundValidTarget3d = false;
     addRequirements(shooter, leds);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    // System.out.println("Initializing UpdateTargetPose command");
+    System.out.println("Initializing UpdateTargetPose command");
     leds.turnOn();
     shooter.resetTargetPose2d();
     shooter.resetTargetPose3d();
@@ -50,6 +45,7 @@ public class UpdateTargetPose extends CommandBase {
     // if(!foundValidTarget3d)
     //   foundValidTarget3d = shooter.setTargetPose3d(shooter.getTargetPose3d());
     // shooter.setTargetPose2d(shooter.getTargetPose2d());
+    System.out.println("Execute");
     shooter.setTargetPose2d(shooter.getTargetPose2d());
     shooter.setTargetPose3d(shooter.getTargetPose3d());
   }
@@ -61,7 +57,8 @@ public class UpdateTargetPose extends CommandBase {
     // System.out.println("Current: " + drivetrain.getHeadingAsAngle());
     // System.out.println("Yaw: " + shooter.getYawToTarget());
     // System.out.println("New setpoint: " + (drivetrain.getHeadingAsAngle() - shooter.getYawToTarget()));
-    // leds.turnOff();
+    leds.turnOff();
+    System.out.println("Ending UpdateTargetPose");
   }
 
   // Returns true when the command should end.
