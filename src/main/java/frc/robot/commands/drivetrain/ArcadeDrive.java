@@ -43,7 +43,7 @@ public class ArcadeDrive extends CommandBase {
   public void execute() {
     double speedMultiplierRaw = accelerationSupplier.getAsDouble();
     double throttle = throttleSupplier.getAsDouble();
-    double turn = Math.pow(turnSupplier.getAsDouble(), 3);
+    double turn = Math.pow(turnSupplier.getAsDouble(), 5);
     
     double speedMultiplier = MathUtil.normalize(1, -1, 0.2, 1, speedMultiplierRaw);
     // System.out.println("Speed Multiplier " + speedMultiplier);
