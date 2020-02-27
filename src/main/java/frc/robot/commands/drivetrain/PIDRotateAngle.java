@@ -21,8 +21,8 @@ public class PIDRotateAngle extends CommandBase {
   private final VisionLEDs leds;
   private double setpoint;
 
-  private final double kP = 0.02; // 0.06//0.0825;//0.075;// 0.0875; // 0.09; //0.1; // 0.1125;//0.125; //0.15;
-  private final double kD = 0.0095; //0.011;// 0.009875;// 0.00975;
+  private final double kP = 0.025; // 0.06//0.0825;//0.075;// 0.0875; // 0.09; //0.1; // 0.1125;//0.125; //0.15;
+  private final double kD = 0.00215;//0.002; //0.011;// 0.009875;// 0.00975;
   // Use 0.0825 & 0.00975 for drivetrain rotation
 
   private double previousError = 0;
@@ -38,7 +38,8 @@ public class PIDRotateAngle extends CommandBase {
     this.drivetrain = drivetrain;
     this.shooter = shooter;
     this.leds = leds;
-    addRequirements(drivetrain);
+    // addRequirements(drivetrain);
+    // addRequirements(shooter);
   }
 
   // Called when the command is initially scheduled.
@@ -48,6 +49,7 @@ public class PIDRotateAngle extends CommandBase {
     stopAccumulator = 0;
     setpoint = 0;
     leds.turnOn();
+    System.out.println("Beginning vision rotate");
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -56,16 +58,18 @@ public class PIDRotateAngle extends CommandBase {
     shooter.setTargetPose2d(shooter.getTargetPose2d());
     shooter.setTargetPose3d(shooter.getTargetPose3d());
     error = -shooter.getYawToTarget();
+    // System.out.println("error: " + error);
     double output = (kP * error) + (kD * (error - previousError) / Constants.kDT);
     drivetrain.arcadeDrive(0, -output);
     previousError = error;
-    System.out.println(drivetrain.getHeadingAsAngle());
+    System.out.println("Yaw error: " + shooter.getYawToTarget());
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     drivetrain.stop();
+    System.out.println("Stop accumulator: " + stopAccumulator + ". Ending vision rotate");
   }
 
   // Returns true when the command should end.

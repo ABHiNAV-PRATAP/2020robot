@@ -14,18 +14,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.drivetrain.ArcadeDrive;
-import frc.robot.commands.drivetrain.BangBangRotate;
+import frc.robot.commands.drivetrain.DriveDistanceStraight;
 import frc.robot.commands.drivetrain.ExampleCommand;
 import frc.robot.commands.drivetrain.PIDRotateAngle;
-import frc.robot.commands.drivetrain.RotateToAnglePID;
-import frc.robot.commands.drivetrain.TurnToAngle;
 import frc.robot.commands.intake.IntakeCell;
 import frc.robot.commands.intake.OuttakeCell;
 import frc.robot.commands.shooter.Shoot;
-import frc.robot.commands.shooter.UpdateTargetPose;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -134,9 +130,23 @@ public class RobotContainer {
       )
     );
 
-    shoot.whileHeld(new Shoot(shooter, () -> shooter.topSetpointShuffleboard.getDouble(0), () -> shooter.bottomSetpointShuffleboard.getDouble(0), leds));
+    shoot.whileHeld(new Shoot(shooter, () -> shooter.topSetpointShuffleboard.getDouble(0), 
+    () -> shooter.bottomSetpointShuffleboard.getDouble(0), leds));
     
-    rotate.whenPressed(new TurnToAngle(drivetrain, 30));
+    // rotate.whenPressed(new TurnToAngle(drivetrain, 180));
+    // rotate.whenPressed(new UpdateTargetPose(shooter, leds).andThen(new PIDRotateAngle(drivetrain, shooter, leds)));
+    // rotate.whileHeld(
+    //   new PIDRotateAngle(drivetrain, shooter, leds).andThen(
+    //     new Shoot(
+    //       shooter,
+    //       () -> shooter.topSetpointShuffleboard.getDouble(0.0),
+    //       () -> shooter.bottomSetpointShuffleboard.getDouble(0.0),
+    //       leds
+    //     )
+    //   )
+    // );
+    // rotate.whenPressed(new UpdateTargetPose(shooter, leds));
+    rotate.whenPressed(new DriveDistanceStraight(drivetrain, 34)); //setpoint in inches
 
     flipDT.whenPressed(new RunCommand(() -> drivetrain.flipDT(), drivetrain));
 

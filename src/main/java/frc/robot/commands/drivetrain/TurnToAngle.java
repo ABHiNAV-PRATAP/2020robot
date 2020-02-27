@@ -13,8 +13,8 @@ public class TurnToAngle extends CommandBase {
   private final Drivetrain drivetrain;
   private double setpoint;
 
-  private final double kP = 0.05;//0.0375; //0.05; // 0.06//0.0825;//0.075;// 0.0875; // 0.09; //0.1; // 0.1125;//0.125; //0.15;
-  private final double kD = 0.008;// 0.004;//0.001;//0.5;//0.001; //0.011;// 0.009875;// 0.00975;
+  private final double kP = 0.0425;//0.0375; //0.05; // 0.06//0.0825;//0.075;// 0.0875; // 0.09; //0.1; // 0.1125;//0.125; //0.15;
+  private final double kD = 0.0055;// 0.005;//0.001;//0.5;//0.001; //0.011;// 0.009875;// 0.00975;
   
   private double previousError = 0;
   private double error = 0;
@@ -45,6 +45,7 @@ public class TurnToAngle extends CommandBase {
     drivetrain.arcadeDrive(0, -output);
     previousError = error;
     System.out.println(drivetrain.getHeadingAsAngle());
+
   }
 
   // Called once the command ends or is interrupted.

@@ -121,6 +121,18 @@ public class Drivetrain extends SubsystemBase {
     rightDriveVenom.resetPosition();
   }
 
+  public double getLeftEncoderDistance() {
+    return leftDriveVenom.getPosition();
+  }
+
+  public double getRightEncoderDistance() {
+    return rightDriveVenom.getPosition();
+  }
+
+  public double venomTicksToInches(double revolutions) {
+    return Math.PI * Constants.kWheelDiameter * revolutions / 10.71;
+  }
+
   public void flipDT()
   {
     flipped = !flipped;
@@ -153,7 +165,13 @@ public class Drivetrain extends SubsystemBase {
   
   @Override
   public void periodic() {
-    System.out.println("Current heading: " + getHeadingAsAngle());
+    System.out.println("Current distance: " + (venomTicksToInches(getRightEncoderDistance()) + venomTicksToInches(getLeftEncoderDistance()) / 2.0));
+    // System.out.println("Right encoder: " + getRightEncoderDistance());
+    // System.out.println("Left encoder: " + getLeftEncoderDistance());
+    // System.out.println("Distance in inches (RIGHT): " + venomTicksToInches(getRightEncoderDistance()));
+    // System.out.println("Distance in inches (LEFT): " + venomTicksToInches(getLeftEncoderDistance()));
+
+    // System.out.println("Current heading: " + getHeadingAsAngle());
     // This method will be called once per scheduler run
     // odometry.update(getHeading(), leftDriveMaster.getSelectedSensorPosition() * Constants.kDistancePerTick, rightDriveMaster.getSelectedSensorPosition() * Constants.kDistancePerTick);
     // System.out.println("left: " + leftDriveMaster.getSelectedSensorPosition());

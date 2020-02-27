@@ -20,7 +20,8 @@ public class VisionLEDs extends SubsystemBase {
   Solenoid led2 = new Solenoid(1);
 
   public VisionLEDs() {
-    turnOn();
+    // turnOn();
+    turnOff();
   }
 
   public void turnOn() {

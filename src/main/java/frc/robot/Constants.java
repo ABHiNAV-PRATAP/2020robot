@@ -35,6 +35,7 @@ public final class Constants {
     public static final double kDriveLowRange = 0.2;
     public static final double kDriveHighRange = 1;
     public static final double kTicksPerRotation = 4096;
+    public static final double kWheelDiameter = 6;
 
     public static final double kDriveTurnP = 0.0;
     public static final double kDriveTurnI = 0.0;

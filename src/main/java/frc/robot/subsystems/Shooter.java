@@ -136,7 +136,7 @@ public class Shooter extends SubsystemBase {
 
   public VisionTargetPose2d getTargetPose2d() {
     if (!cameraTable.getEntry("isValid").getBoolean(false)) {
-      // System.out.println("Invalid 2d");
+      System.out.println("Invalid target");
       return null;
     }
     return new VisionTargetPose2d(
@@ -158,6 +158,8 @@ public class Shooter extends SubsystemBase {
   }
 
   public boolean setTargetPose2d(VisionTargetPose2d targetPose2d) {
+    // System.out.println("Setting target 2d");
+    // System.out.println(targetPose2d);
     if(targetPose2d == null) {
       return false;
     }
@@ -233,8 +235,9 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    x = getXToTarget();
-    yaw = getYawToTarget();
+    // System.out.println("Get x to target: " + getXToTarget());
+    // x = getXToTarget();
+    // yaw = getYawToTarget();
   }
   public double getTopVelocity() {
     return topMotor.getEncoder().getVelocity() / 60;
