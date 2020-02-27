@@ -235,8 +235,9 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    x = getXToTarget();
-    yaw = getYawToTarget();
+    // System.out.println("Get x to target: " + getXToTarget());
+    // x = getXToTarget();
+    // yaw = getYawToTarget();
   }
   public double getTopVelocity() {
     return topMotor.getEncoder().getVelocity() / 60;
