@@ -40,6 +40,7 @@ public class DriveDistanceStraight extends CommandBase {
   public void initialize() {
     angleSetpoint = drivetrain.getHeadingAsAngle();
     drivetrain.resetEncoders();
+    System.out.println("Distance setpoint: " + distanceSetpoint);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -51,6 +52,7 @@ public class DriveDistanceStraight extends CommandBase {
     double turnOutput = kTurnP * turnError;
     // double throttleOutput = kDriveP * distanceError;
     currentDistance = (drivetrain.venomTicksToInches(drivetrain.getLeftEncoderDistance()) + drivetrain.venomTicksToInches(drivetrain.getRightEncoderDistance())) / 2.0;
+    System.out.println("Current distance: " + currentDistance);
     // System.out.println("Current Distance: " + currentDistance);
     // distanceError = MathUtil.constrain(-1, 1, distanceError);
     drivetrain.arcadeDrive(0.1, -turnOutput);
