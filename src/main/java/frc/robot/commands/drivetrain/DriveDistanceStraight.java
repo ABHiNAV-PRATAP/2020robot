@@ -20,6 +20,7 @@ public class DriveDistanceStraight extends CommandBase {
   private double distanceSetpoint;
   private double turnError;
 
+  private double throttleOutput;
   private double direction;
 
   private double currentDistance;
@@ -32,9 +33,10 @@ public class DriveDistanceStraight extends CommandBase {
   /**
    * Creates a new DriveDistanceStraight.
    */
-  public DriveDistanceStraight(Drivetrain drivetrain, Intake intake, double distanceSetpoint /* in inches */) {
+  public DriveDistanceStraight(Drivetrain drivetrain, Intake intake, double throttleOutput, double distanceSetpoint /* in inches */) {
     this.drivetrain = drivetrain;
     this.distanceSetpoint = distanceSetpoint;
+    this.throttleOutput = throttleOutput;
     this.intake = intake;
     direction = MathUtil.sign(distanceSetpoint);
     addRequirements(drivetrain);
@@ -62,7 +64,12 @@ public class DriveDistanceStraight extends CommandBase {
     System.out.println("Current distance: " + currentDistance);
     // System.out.println("Current Distance: " + currentDistance);
     // distanceError = MathUtil.constrain(-1, 1, distanceError);
-    drivetrain.arcadeDrive(0.2*direction, -turnOutput);
+    if(currentDistance >= 0.75 *distanceSetpoint) {
+      drivetrain.arcadeDrive(throttleOutput*direction*0.75, -turnOutput);
+    }
+    else {
+      drivetrain.arcadeDrive(throttleOutput*direction, -turnOutput);
+    }
   } 
 
   // Called once the command ends or is interrupted.

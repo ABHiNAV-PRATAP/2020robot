@@ -24,6 +24,7 @@ import frc.robot.commands.drivetrain.PIDRotateAngle;
 import frc.robot.commands.intake.IntakeCell;
 import frc.robot.commands.intake.OuttakeCell;
 import frc.robot.commands.shooter.Shoot;
+import frc.robot.commands.shooter.TeleopVisionAssistedShoot;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -132,8 +133,11 @@ public class RobotContainer {
       )
     );
 
-    shoot.whileHeld(new Shoot(shooter, () -> shooter.topSetpointShuffleboard.getDouble(0), 
-    () -> shooter.bottomSetpointShuffleboard.getDouble(0), leds));
+    // shoot.whileHeld(new Shoot(shooter, () -> shooter.topSetpointShuffleboard.getDouble(0), 
+    // () -> shooter.bottomSetpointShuffleboard.getDouble(0), leds));
+
+    // shoot.whileHeld(new PIDRotateAngle(drivetrain, shooter, leds).andThen(new TeleopVisionAssistedShoot(shooter)));
+    shoot.whileHeld(new TeleopVisionAssistedShoot(shooter, leds));
     
     // rotate.whenPressed(new TurnToAngle(drivetrain, 180));
     // rotate.whenPressed(new UpdateTargetPose(shooter, leds).andThen(new PIDRotateAngle(drivetrain, shooter, leds)));
@@ -150,7 +154,7 @@ public class RobotContainer {
     // rotate.whenPressed(new UpdateTargetPose(shooter, leds));
     //rotate.whenPressed(new DriveDistanceStraight(drivetrain, 175)); //setpoint in inches
 
-    flipDT.whenPressed(new RunCommand(() -> drivetrain.flipDT(), drivetrain));
+    // flipDT.whenPressed(new RunCommand(() -> drivetrain.flipDT(), drivetrain));
 
     intakeCell.whileHeld(new IntakeCell(intake));
     outtakeCell.whileHeld(new OuttakeCell(intake));

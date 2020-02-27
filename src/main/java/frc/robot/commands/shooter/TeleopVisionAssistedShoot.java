@@ -8,13 +8,16 @@
 package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.VisionLEDs;
 import frc.util.MathUtil;
+import frc.util.vision.ShooterProfile;
 
-public class VisionAssistedShoot extends CommandBase {
+public class TeleopVisionAssistedShoot extends CommandBase {
   private final Shooter shooter;
-  private final Intake intake;
+  private final VisionLEDs leds;
+
+  private double x;
 
   private double timeout;
   private int ctr;
@@ -23,13 +26,10 @@ public class VisionAssistedShoot extends CommandBase {
   /**
    * Creates a new VisionAssistedShoot.
    */
-  public VisionAssistedShoot(Shooter shooter, Intake intake, double timeout) {
+  public TeleopVisionAssistedShoot(Shooter shooter, VisionLEDs leds) {
     this.shooter = shooter;
-    this.timeout = timeout;
-    this.intake = intake;
-    ctr = 0;
-    topShooterSpeed = 0;
-    bottomShooterSpeed = 0;
+    this.leds = leds;
+
     addRequirements(shooter);
     // Use addRequirements() here to declare subsystem dependencies.
   }
@@ -37,12 +37,23 @@ public class VisionAssistedShoot extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    System.out.println("timeout: " + timeout);
-    ctr = 0;
+    // this.x = shooter.getTargetPose3d().getX();
+    x = shooter.getXToTarget();
+
+    // shooter.setTargetPose2d(shooter.getTargetPose2d());
+    // shooter.setTargetPose3d(shooter.getTargetPose3d());
+    ShooterProfile currentProfile = shooter.getShooterProfileFromInterpolator(x);
+
+    topShooterSpeed = currentProfile.getTopShooterSpeed();
+    bottomShooterSpeed = currentProfile.getBottomShooterSpeed();
+    System.out.println("x: " + x);
+    System.out.println("Top Shooter speed: " + topShooterSpeed);
+    System.out.println("Bottom Shooter speed: " + bottomShooterSpeed);
+    
     // System.out.println("Initializing VisionAssistedShoot command");
     // ShooterProfile currentProfile = shooter.getShooterProfileFromInterpolator(shooter.getXToTarget());
     // topShooterSpeed = currentProfile.getTopShooterSpeed();
-    double x = shooter.getXToTarget();
+    // double x = shooter.getXToTarget();
     // System.out.println("x: " + x);
     // if(topShooterSpeed > 4) {
     //   topShooterSpeed = 20;
@@ -50,8 +61,8 @@ public class VisionAssistedShoot extends CommandBase {
     // else {
     //   topShooterSpeed = -1182.5523*Math.pow(x, 3) + 13205.1580*Math.pow(x, 2) - 49074.4837*x + 60713.2697;
     // }
-    topShooterSpeed = 15;
-    bottomShooterSpeed = 90;
+    // topShooterSpeed = 15;
+    // bottomShooterSpeed = 90;
     //withTimeout(20);
     // System.out.println("top: " + topShooterSpeed);
     // System.out.println("bottom: " + bottomShooterSpeed);
@@ -60,9 +71,9 @@ public class VisionAssistedShoot extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    intake.setValue(-1);
-    ctr += 20;
-    System.out.println("ctr: " + ctr);
+    // intake.setValue(-1);
+    // ctr += 20;
+    // System.out.println("ctr: " + ctr);
     if(MathUtil.withinTolerance(shooter.getTopVelocity(), topShooterSpeed, 3)) {
       shooter.servoOpen();
     }
@@ -72,9 +83,9 @@ public class VisionAssistedShoot extends CommandBase {
     double calcBot = shooter.bpid.calculate(shooter.getBottomVelocity());
     shooter.setTopMotorVoltage(calctop + shooter.tff.calculate(topShooterSpeed));
     shooter.setBottomMotorVoltage(calcBot + shooter.bff.calculate(bottomShooterSpeed));
-    if(ctr >= timeout) {
-      end(false);
-    }
+    // if(ctr >= timeout) {
+    //   end(false);
+    // }
   }
 
   // Called once the command ends or is interrupted.
@@ -82,13 +93,15 @@ public class VisionAssistedShoot extends CommandBase {
   public void end(boolean interrupted) {
     shooter.servoClose();
     shooter.stop();
-    intake.setValue(0);
+    leds.turnOff();
+    // intake.setValue(0);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    System.out.println(ctr >= timeout);
-    return ctr >= timeout;
+    // System.out.println(ctr >= timeout);
+    // return ctr >= timeout;
+    return false;
   }
 }

@@ -75,10 +75,10 @@ public class PIDRotateAngle extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if(Math.abs(error)<=1){
+    if(Math.abs(error)<=2){
       stopAccumulator++;
     }
-    else if(Math.abs(error)>=1){
+    else if(Math.abs(error)>=2){
       stopAccumulator = 0;
     }
     return stopAccumulator>=10;

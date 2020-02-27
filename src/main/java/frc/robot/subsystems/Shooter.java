@@ -102,9 +102,14 @@ public class Shooter extends SubsystemBase {
       // Add and modify these profiles to match the experimental data we collect
       new ArrayList<ShooterProfile>() {{
         // add(new ShooterProfile(x (distance), top shooter speed, bottom shooter speed))
-        add(new ShooterProfile(0, 0, 0));
-        add(new ShooterProfile(0, 0, 0));
-        add(new ShooterProfile(0, 0, 0));
+        // add(new ShooterProfile(3.32, 66, 90));
+        add(new ShooterProfile(3.32, 63, 90));
+        add(new ShooterProfile(3.39, 35, 90));
+        add(new ShooterProfile(3.71, 20, 90));
+        add(new ShooterProfile(3.80, 20, 90));
+        add(new ShooterProfile(3.96, 20, 90));
+        add(new ShooterProfile(4.71, 15, 90));
+        // add(new ShooterProfile(5.09, 90, 0));
       }}
     );
   }
@@ -153,6 +158,7 @@ public class Shooter extends SubsystemBase {
 
   public VisionTargetPose3d getTargetPose3d() {
     if (!cameraTable.getEntry("isValid").getBoolean(false)) {
+      System.out.println("Is not valid");
       return null;
     }
     return new VisionTargetPose3d(
@@ -160,11 +166,26 @@ public class Shooter extends SubsystemBase {
         new Double[] {0.0, 0.0, 0.0}
       )
     );
+
+    // if(currentTargetPose3d == null) {
+    //   System.out.println("null object");
+    //   return 0.0;
+    // }
+    // return currentTargetPose3d.getX();
+
+    // VisionTargetPose3d temp =  new VisionTargetPose3d(
+    //   cameraTable.getEntry("targetPose").getDoubleArray(
+    //     new Double[] {0.0, 0.0, 0.0}
+    //   )
+    // );
+
+    // System.out.println("Temp: " + temp);
+
+    // return temp;
   }
 
   public boolean setTargetPose2d(VisionTargetPose2d targetPose2d) {
     // System.out.println("Setting target 2d");
-    // System.out.println(targetPose2d);
     if(targetPose2d == null) {
       return false;
     }
@@ -198,6 +219,7 @@ public class Shooter extends SubsystemBase {
 
   public Double getXToTarget() {
     if(currentTargetPose3d == null) {
+      System.out.println("null object");
       return 0.0;
     }
     return currentTargetPose3d.getX();

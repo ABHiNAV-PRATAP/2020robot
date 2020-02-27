@@ -29,6 +29,6 @@ public class ThreeBall extends SequentialCommandGroup {
     // Add your commands in the super() call, e.g.
     // super(new FooCommand(), new BarCommand());
     super();
-    addCommands(new DriveDistanceStraight(drivetrain, intake, 90), new PIDRotateAngle(drivetrain, shooter, leds), new VisionAssistedShoot(shooter, 3000), new RotateToAngle(drivetrain, 0), new RunCommand(() -> drivetrain.stop()));
+    addCommands(new DriveDistanceStraight(drivetrain, intake, 0.5, 90), new PIDRotateAngle(drivetrain, shooter, leds), new VisionAssistedShoot(shooter, intake, 3000), new RotateToAngle(drivetrain, 0), new RunCommand(() -> drivetrain.stop()));
   }
 }
