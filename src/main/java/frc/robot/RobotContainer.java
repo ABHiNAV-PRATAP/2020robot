@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.auto.SixBall;
+import frc.robot.commands.auto.ThreeBall;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.drivetrain.DriveDistanceStraight;
 import frc.robot.commands.drivetrain.ExampleCommand;
@@ -146,7 +148,7 @@ public class RobotContainer {
     //   )
     // );
     // rotate.whenPressed(new UpdateTargetPose(shooter, leds));
-    rotate.whenPressed(new DriveDistanceStraight(drivetrain, 34)); //setpoint in inches
+    //rotate.whenPressed(new DriveDistanceStraight(drivetrain, 175)); //setpoint in inches
 
     flipDT.whenPressed(new RunCommand(() -> drivetrain.flipDT(), drivetrain));
 
@@ -161,6 +163,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new ExampleCommand();
+    return new SixBall(drivetrain, intake, shooter, leds);
   }
 }

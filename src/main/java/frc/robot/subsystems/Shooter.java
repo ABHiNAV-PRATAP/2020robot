@@ -113,6 +113,11 @@ public class Shooter extends SubsystemBase {
     topMotor.setVoltage(value);
   }
 
+  public void stop() {
+    topMotor.set(0);
+    bottomMotor.set(0);
+  }
+
   public void servoClose()
   {
     setServoAngle(90);

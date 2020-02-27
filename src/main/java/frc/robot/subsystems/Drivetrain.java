@@ -165,7 +165,7 @@ public class Drivetrain extends SubsystemBase {
   
   @Override
   public void periodic() {
-    System.out.println("Current distance: " + (venomTicksToInches(getRightEncoderDistance()) + venomTicksToInches(getLeftEncoderDistance()) / 2.0));
+    // System.out.println("Current distance: " + venomTicksToInches(getLeftEncoderDistance()));
     // System.out.println("Right encoder: " + getRightEncoderDistance());
     // System.out.println("Left encoder: " + getLeftEncoderDistance());
     // System.out.println("Distance in inches (RIGHT): " + venomTicksToInches(getRightEncoderDistance()));
