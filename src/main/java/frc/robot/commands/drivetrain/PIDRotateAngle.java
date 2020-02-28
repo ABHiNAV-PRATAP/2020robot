@@ -55,14 +55,18 @@ public class PIDRotateAngle extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    shooter.setTargetPose2d(shooter.getTargetPose2d());
-    shooter.setTargetPose3d(shooter.getTargetPose3d());
-    error = -shooter.getYawToTarget();
-    // System.out.println("error: " + error);
-    double output = (kP * error) + (kD * (error - previousError) / Constants.kDT);
-    drivetrain.arcadeDrive(0, -output);
-    previousError = error;
-    System.out.println("Yaw error: " + shooter.getYawToTarget());
+    if (shooter.hasValidTargetPose2d())
+    {
+      shooter.setTargetPose2d(shooter.getTargetPose2d());
+      shooter.setTargetPose3d(shooter.getTargetPose3d());
+      error = -shooter.getYawToTarget();
+      // error = - shooter.cameraTable.getEntry("targetYaw").getDouble(0.0);
+      // System.out.println("error: " + error);
+      double output = (kP * error) + (kD * (error - previousError) / Constants.kDT);
+      drivetrain.arcadeDrive(0, -output);
+      previousError = error;
+      System.out.println("Yaw error: " + shooter.getYawToTarget());
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -75,6 +79,11 @@ public class PIDRotateAngle extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
+    if (!shooter.hasValidTargetPose2d())
+    {
+      return true;
+    }
+    
     if(Math.abs(error)<=2){
       stopAccumulator++;
     }

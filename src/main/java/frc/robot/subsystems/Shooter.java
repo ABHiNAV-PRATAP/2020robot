@@ -84,7 +84,7 @@ public class Shooter extends SubsystemBase {
   NetworkTableEntry yawToTarget = tab.add("yaw", yaw).withWidget(BuiltInWidgets.kTextView).getEntry();
 
   NetworkTableInstance table = NetworkTableInstance.getDefault();
-  NetworkTable cameraTable = table.getTable("chameleon-vision").getSubTable("infuzed-ps3");
+  public NetworkTable cameraTable = table.getTable("chameleon-vision").getSubTable("infuzed-ps3");
   /**
    * Creates a new Shooter.
    */

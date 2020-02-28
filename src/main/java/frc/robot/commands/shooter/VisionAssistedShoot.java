@@ -60,20 +60,23 @@ public class VisionAssistedShoot extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    intake.setValue(-1);
-    ctr += 20;
-    System.out.println("ctr: " + ctr);
-    if(MathUtil.withinTolerance(shooter.getTopVelocity(), topShooterSpeed, 3)) {
-      shooter.servoOpen();
-    }
-    shooter.tpid.setSetpoint(topShooterSpeed);
-    shooter.bpid.setSetpoint(bottomShooterSpeed);
-    double calctop = shooter.tpid.calculate(shooter.getTopVelocity());
-    double calcBot = shooter.bpid.calculate(shooter.getBottomVelocity());
-    shooter.setTopMotorVoltage(calctop + shooter.tff.calculate(topShooterSpeed));
-    shooter.setBottomMotorVoltage(calcBot + shooter.bff.calculate(bottomShooterSpeed));
-    if(ctr >= timeout) {
-      end(false);
+    // if (shooter.hasValidTargetPose3d())
+    // {
+      intake.setValue(-1);
+      ctr += 20;
+      System.out.println("ctr: " + ctr);
+      if(MathUtil.withinTolerance(shooter.getTopVelocity(), topShooterSpeed, 3)) {
+        shooter.servoOpen();
+      }
+      shooter.tpid.setSetpoint(topShooterSpeed);
+      shooter.bpid.setSetpoint(bottomShooterSpeed);
+      double calctop = shooter.tpid.calculate(shooter.getTopVelocity());
+      double calcBot = shooter.bpid.calculate(shooter.getBottomVelocity());
+      shooter.setTopMotorVoltage(calctop + shooter.tff.calculate(topShooterSpeed));
+      shooter.setBottomMotorVoltage(calcBot + shooter.bff.calculate(bottomShooterSpeed));
+      if(ctr >= timeout) {
+        end(false);
+      // }
     }
   }
 
@@ -88,7 +91,7 @@ public class VisionAssistedShoot extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    System.out.println(ctr >= timeout);
+    // System.out.println(ctr >= timeout);
     return ctr >= timeout;
   }
 }

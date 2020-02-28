@@ -34,7 +34,7 @@ public class BangBangRotate extends CommandBase {
   @Override
   public void initialize() {
     setpointValue = drivetrain.getHeadingAsAngle() - shooter.getYawToTarget();
-    System.out.println("Setpoint: " + setpointValue);
+    // System.out.println("Setpoint: " + setpointValue);
   }
 
   // Called every time the scheduler runs while the command is scheduled.

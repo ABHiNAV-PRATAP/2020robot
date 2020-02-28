@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.auto.EightBall;
 import frc.robot.commands.auto.SixBall;
 import frc.robot.commands.auto.ThreeBall;
 import frc.robot.commands.drivetrain.ArcadeDrive;
@@ -167,6 +168,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new SixBall(drivetrain, intake, shooter, leds);
+    return new EightBall(drivetrain, intake, shooter, leds);
   }
 }
