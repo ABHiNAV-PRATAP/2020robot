@@ -67,6 +67,10 @@ public class DriveDistanceStraight extends CommandBase {
     if(currentDistance >= 0.75 *distanceSetpoint) {
       drivetrain.arcadeDrive(throttleOutput*direction*0.75, -turnOutput);
     }
+    else if (currentDistance >= 0.9*distanceSetpoint)
+    {
+      drivetrain.arcadeDrive(0.2*direction, -turnOutput);
+    }
     else {
       drivetrain.arcadeDrive(throttleOutput*direction, -turnOutput);
     }

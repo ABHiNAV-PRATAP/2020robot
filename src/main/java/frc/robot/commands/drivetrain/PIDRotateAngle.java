@@ -29,6 +29,7 @@ public class PIDRotateAngle extends CommandBase {
   private double error = 0;
 
   private int stopAccumulator;
+  
 
   /**
    * Creates a new PIDRotateAngle.
@@ -55,8 +56,7 @@ public class PIDRotateAngle extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (shooter.hasValidTargetPose2d())
-    {
+    // System.out.println("Yaw error: " + shooter.getYawToTarget());
       shooter.setTargetPose2d(shooter.getTargetPose2d());
       shooter.setTargetPose3d(shooter.getTargetPose3d());
       error = -shooter.getYawToTarget();
@@ -66,14 +66,13 @@ public class PIDRotateAngle extends CommandBase {
       drivetrain.arcadeDrive(0, -output);
       previousError = error;
       System.out.println("Yaw error: " + shooter.getYawToTarget());
-    }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
     drivetrain.stop();
-    System.out.println("Stop accumulator: " + stopAccumulator + ". Ending vision rotate");
+    // System.out.println("Stop accumulator: " + stopAccumulator + ". Ending vision rotate");
   }
 
   // Returns true when the command should end.

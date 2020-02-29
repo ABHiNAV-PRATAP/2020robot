@@ -84,7 +84,7 @@ public class Shooter extends SubsystemBase {
   NetworkTableEntry yawToTarget = tab.add("yaw", yaw).withWidget(BuiltInWidgets.kTextView).getEntry();
 
   NetworkTableInstance table = NetworkTableInstance.getDefault();
-  public NetworkTable cameraTable = table.getTable("chameleon-vision").getSubTable("infuzed-ps3");
+  NetworkTable cameraTable = table.getTable("chameleon-vision").getSubTable("infuzed-ps3");
   /**
    * Creates a new Shooter.
    */
@@ -218,11 +218,8 @@ public class Shooter extends SubsystemBase {
   }
 
   public Double getXToTarget() {
-    if(currentTargetPose3d == null) {
-      System.out.println("null object");
-      return 0.0;
-    }
-    return currentTargetPose3d.getX();
+    Double[] temp =  cameraTable.getEntry("targetPose").getDoubleArray(new Double[] {0.0, 0.0, 0.0});
+    return temp[0];
   }
 
   public Double getYToTarget() {
@@ -247,10 +244,13 @@ public class Shooter extends SubsystemBase {
   }
 
   public Double getYawToTarget() {
-    if(currentTargetPose2d == null) {
-      return 0.0;
-    }
-    return currentTargetPose2d.getYaw();
+    // if(currentTargetPose2d == null) {
+    //   return 0.0;
+    // }
+    // return currentTargetPose2d.getYaw();
+
+      return cameraTable.getEntry("targetYaw").getDouble(0);
+
   }
 
   public Double getAreaOfTarget() {
