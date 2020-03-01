@@ -16,6 +16,8 @@ import frc.robot.commands.drivetrain.RotateToAngle;
 import frc.robot.commands.drivetrain.TurnToAngle;
 import frc.robot.commands.intake.IntakeCell;
 import frc.robot.commands.shooter.VisionAssistedShoot;
+import frc.robot.commands.shooter.*;
+
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -33,7 +35,7 @@ public class SixBall extends SequentialCommandGroup {
     // Add your commands in the super() call, e.g.
     // super(new FooCommand(), new BarCommand());
     super();
-    addCommands(new DriveDistanceStraight(drivetrain, intake, 0.5, 85), 
+    addCommands(new DriveDistanceStraight(drivetrain, intake, 0.5, 95), 
     new PIDRotateAngle(drivetrain, shooter, leds),
     new VisionAssistedShoot(shooter, intake, 4000), 
     new TurnToAngle(drivetrain, 0), 

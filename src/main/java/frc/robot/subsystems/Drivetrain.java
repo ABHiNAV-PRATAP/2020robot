@@ -58,6 +58,12 @@ public class Drivetrain extends SubsystemBase {
     setDriveMotors(throttle + turn, throttle - turn);
   }
 
+  public void VisionArcadeDrive(double throttle, double turn)
+  {
+    leftMotors.set(throttle + turn);
+    rightMotors.set(throttle - turn);
+  }
+
   public void setDriveMotors(double leftValue, double rightValue) {
     if (!flipped)
     {
@@ -71,24 +77,25 @@ public class Drivetrain extends SubsystemBase {
     }
   }
 
-  public void setDriveMotorVoltage(double leftVoltage, double rightVoltage)
-  {
-    if (!flipped)
-    {
-      leftMotors.set(leftVoltage);
-      rightMotors.set(rightVoltage);
-    }
-    if (flipped)
-    {
-      leftMotors.set(-rightVoltage);
-      rightMotors.set(-leftVoltage);
-    }
-  }
+  // public void setDriveMotorVoltage(double leftVoltage, double rightVoltage)
+  // {
+  //   if (!flipped)
+  //   {
+  //     leftMotors.set(leftVoltage);
+  //     rightMotors.set(rightVoltage);
+  //   }
+  //   if (flipped)
+  //   {
+  //     leftMotors.set(-rightVoltage);
+  //     rightMotors.set(-leftVoltage);
+  //   }
+  // }
 
   public void setDriveMotors(double value) {
     if (!flipped)
     {
       leftMotors.set(value);
+      rightMotors.set(value);
     }
     if (flipped)
     {

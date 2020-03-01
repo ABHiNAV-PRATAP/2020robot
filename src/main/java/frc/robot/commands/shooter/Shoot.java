@@ -37,7 +37,7 @@ public class Shoot extends CommandBase {
   public void initialize() {
     System.out.println("Started Shoot");
     //shooter.setServoAngle(60);
-    leds.turnOn();
+    // leds.turnOn();
     // shooter.tpid.setTolerance(1);
     // shooter.bpid.setTolerance(1);
   }

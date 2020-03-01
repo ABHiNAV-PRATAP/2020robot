@@ -39,13 +39,20 @@ public class TeleopVisionAssistedShoot extends CommandBase {
   public void initialize() {
     // this.x = shooter.getTargetPose3d().getX();
     x = shooter.getXToTarget();
+    leds.turnOn();
 
     // shooter.setTargetPose2d(shooter.getTargetPose2d());
     // shooter.setTargetPose3d(shooter.getTargetPose3d());
     ShooterProfile currentProfile = shooter.getShooterProfileFromInterpolator(x);
-
     topShooterSpeed = currentProfile.getTopShooterSpeed();
     bottomShooterSpeed = currentProfile.getBottomShooterSpeed();
+    if(x <= 0)
+    {
+        topShooterSpeed = 0;
+        bottomShooterSpeed = 0;
+    }
+
+    
     System.out.println("x: " + x);
     System.out.println("Top Shooter speed: " + topShooterSpeed);
     System.out.println("Bottom Shooter speed: " + bottomShooterSpeed);
@@ -76,9 +83,29 @@ public class TeleopVisionAssistedShoot extends CommandBase {
     // System.out.println("ctr: " + ctr);
     // if (shooter.hasValidTargetPose3d())
     // {
-      if(MathUtil.withinTolerance(shooter.getTopVelocity(), topShooterSpeed, 3)) {
+      x = shooter.getXToTarget();
+
+    // shooter.setTargetPose2d(shooter.getTargetPose2d());
+    // shooter.setTargetPose3d(shooter.getTargetPose3d());
+    ShooterProfile currentProfile = shooter.getShooterProfileFromInterpolator(x);
+
+    topShooterSpeed = currentProfile.getTopShooterSpeed();
+    bottomShooterSpeed = currentProfile.getBottomShooterSpeed();  
+
+    
+
+    System.out.println("top shooter speed " + topShooterSpeed);
+
+      if(MathUtil.withinTolerance(shooter.getTopVelocity(), topShooterSpeed, 2.5)) {
         shooter.servoOpen();
       }
+
+      if(x <= 0)
+    {
+        topShooterSpeed = 0;
+        bottomShooterSpeed = 0;
+        shooter.servoClose();
+    }
       shooter.tpid.setSetpoint(topShooterSpeed);
       shooter.bpid.setSetpoint(bottomShooterSpeed);
       double calctop = shooter.tpid.calculate(shooter.getTopVelocity());

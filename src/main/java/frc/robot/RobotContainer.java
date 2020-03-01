@@ -11,16 +11,14 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.auto.EightBall;
 import frc.robot.commands.auto.SixBall;
-import frc.robot.commands.auto.ThreeBall;
 import frc.robot.commands.drivetrain.ArcadeDrive;
-import frc.robot.commands.drivetrain.DriveDistanceStraight;
-import frc.robot.commands.drivetrain.ExampleCommand;
+import frc.robot.commands.drivetrain.FlipDrivetrain;
 import frc.robot.commands.drivetrain.PIDRotateAngle;
 import frc.robot.commands.intake.IntakeCell;
 import frc.robot.commands.intake.OuttakeCell;
@@ -47,14 +45,21 @@ public class RobotContainer {
 
   private Joystick driveJoystick = new Joystick(Constants.kDriveJoystickPort);
 
+  private JoystickButton shoot9020 = new JoystickButton(driveJoystick, 12);
+  private JoystickButton shoot9015 = new JoystickButton(driveJoystick, 2);
+  private JoystickButton shoot9010 = new JoystickButton(driveJoystick, 10);
+
+  private JoystickButton servoTest = new JoystickButton(driveJoystick, 7);
+
+
   private final JoystickButton align = new JoystickButton(driveJoystick, 8);
   
-  private final JoystickButton flipDT = new JoystickButton(driveJoystick, 2);
+//  private final JoystickButton flipDT = new JoystickButton(driveJoystick, 12);
   
   private final JoystickButton shoot = new JoystickButton(driveJoystick, 1);
-  private final JoystickButton rotate = new JoystickButton(driveJoystick, 10);
+  //private final JoystickButton rotate = new JoystickButton(driveJoystick, 10);
 
-  SendableChooser<Trajectory> autonomousTrajectories;
+  SendableChooser<CommandBase> autonomousTrajectories;
 
   private final JoystickButton intakeCell = new JoystickButton(driveJoystick, 3);
   private final JoystickButton outtakeCell = new JoystickButton(driveJoystick, 4);
@@ -70,6 +75,7 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
+    autonomousTrajectories = new SendableChooser<>();
 
     // drivetrain.setDefaultCommand(
     //   new TankDrive(
@@ -124,7 +130,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    new JoystickButton(driveJoystick, 9).whenPressed(new RunCommand(() -> shooter.setServoAngle(60)));
+    // new JoystickButton(driveJoystick, 11).whenPressed(new RunCommand(() -> shooter.setServoAngle(60)));
 
     align.whileHeld(
       new PIDRotateAngle(
@@ -136,10 +142,14 @@ public class RobotContainer {
 
     // shoot.whileHeld(new Shoot(shooter, () -> shooter.topSetpointShuffleboard.getDouble(0), 
     // () -> shooter.bottomSetpointShuffleboard.getDouble(0), leds));
-
-    // shoot.whileHeld(new PIDRotateAngle(drivetrain, shooter, leds).andThen(new TeleopVisionAssistedShoot(shooter)));
-    shoot.whileHeld(new TeleopVisionAssistedShoot(shooter, leds));
     
+    // shoot.whileHeld(new PIDRotateAngle(drivetrain, shooter, leds).andThen(new TeleopVisionAssistedShoot(shooter)));
+    shoot9015.whileHeld(new Shoot(shooter, () -> 11.5, () -> 90, leds));
+    shoot9020.whileHeld(new Shoot(shooter, () -> 20, () -> 90, leds));
+    shoot9010.whileHeld(new Shoot(shooter, () -> 10, () -> 90, leds));
+    shoot.whileHeld(new Shoot(shooter, () -> 13, () -> 90, leds));
+    
+    servoTest.whileHeld(new Shoot(shooter, () -> 0, () -> 0, leds));
     // rotate.whenPressed(new TurnToAngle(drivetrain, 180));
     // rotate.whenPressed(new UpdateTargetPose(shooter, leds).andThen(new PIDRotateAngle(drivetrain, shooter, leds)));
     // rotate.whileHeld(
@@ -155,7 +165,7 @@ public class RobotContainer {
     // rotate.whenPressed(new UpdateTargetPose(shooter, leds));
     //rotate.whenPressed(new DriveDistanceStraight(drivetrain, 175)); //setpoint in inches
 
-    // flipDT.whenPressed(new RunCommand(() -> drivetrain.flipDT(), drivetrain));
+   //\ flipDT.whenPressed(new FlipDrivetrain(drivetrain));
 
     intakeCell.whileHeld(new IntakeCell(intake));
     outtakeCell.whileHeld(new OuttakeCell(intake));
@@ -168,6 +178,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new EightBall(drivetrain, intake, shooter, leds);
+    return new SixBall(drivetrain, intake, shooter, leds);
   }
 }

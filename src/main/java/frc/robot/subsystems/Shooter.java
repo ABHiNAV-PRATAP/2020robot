@@ -103,12 +103,13 @@ public class Shooter extends SubsystemBase {
       new ArrayList<ShooterProfile>() {{
         // add(new ShooterProfile(x (distance), top shooter speed, bottom shooter speed))
         // add(new ShooterProfile(3.32, 66, 90));
-        add(new ShooterProfile(3.32, 63, 90));
+        add(new ShooterProfile(3.32, 65, 90));
         add(new ShooterProfile(3.39, 35, 90));
         add(new ShooterProfile(3.71, 20, 90));
         add(new ShooterProfile(3.80, 20, 90));
         add(new ShooterProfile(3.96, 20, 90));
         add(new ShooterProfile(4.71, 15, 90));
+        add(new ShooterProfile(5.09, 5, 90));
         // add(new ShooterProfile(5.09, 90, 0));
       }}
     );
@@ -129,7 +130,7 @@ public class Shooter extends SubsystemBase {
   }
   public void servoOpen()
   {
-    setServoAngle(0);
+    setServoAngle(40);
   }
 
   public void setServoAngle(double degrees) {

@@ -42,7 +42,7 @@ public class VisionAssistedShoot extends CommandBase {
     // System.out.println("Initializing VisionAssistedShoot command");
     // ShooterProfile currentProfile = shooter.getShooterProfileFromInterpolator(shooter.getXToTarget());
     // topShooterSpeed = currentProfile.getTopShooterSpeed();
-    double x = shooter.getXToTarget();
+    // double x = shooter.getXToTarget();
     // System.out.println("x: " + x);
     // if(topShooterSpeed > 4) {
     //   topShooterSpeed = 20;
@@ -50,7 +50,7 @@ public class VisionAssistedShoot extends CommandBase {
     // else {
     //   topShooterSpeed = -1182.5523*Math.pow(x, 3) + 13205.1580*Math.pow(x, 2) - 49074.4837*x + 60713.2697;
     // }
-    topShooterSpeed = 15;
+    topShooterSpeed = 12;
     bottomShooterSpeed = 90;
     //withTimeout(20);
     // System.out.println("top: " + topShooterSpeed);
@@ -65,7 +65,7 @@ public class VisionAssistedShoot extends CommandBase {
       intake.setValue(-1);
       ctr += 20;
       System.out.println("ctr: " + ctr);
-      if(MathUtil.withinTolerance(shooter.getTopVelocity(), topShooterSpeed, 3)) {
+      if(MathUtil.withinTolerance(shooter.getTopVelocity(), topShooterSpeed, 2.5)) {
         shooter.servoOpen();
       }
       shooter.tpid.setSetpoint(topShooterSpeed);
@@ -86,6 +86,7 @@ public class VisionAssistedShoot extends CommandBase {
     shooter.servoClose();
     shooter.stop();
     intake.setValue(0);
+    
   }
 
   // Returns true when the command should end.

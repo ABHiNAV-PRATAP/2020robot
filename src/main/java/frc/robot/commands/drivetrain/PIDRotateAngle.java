@@ -21,7 +21,7 @@ public class PIDRotateAngle extends CommandBase {
   private final VisionLEDs leds;
   private double setpoint;
 
-  private final double kP = 0.025; // 0.06//0.0825;//0.075;// 0.0875; // 0.09; //0.1; // 0.1125;//0.125; //0.15;
+  private final double kP = 0.03;// 0.025; // 0.06//0.0825;//0.075;// 0.0875; // 0.09; //0.1; // 0.1125;//0.125; //0.15;
   private final double kD = 0.00215;//0.002; //0.011;// 0.009875;// 0.00975;
   // Use 0.0825 & 0.00975 for drivetrain rotation
 

@@ -9,7 +9,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.commands.shooter.UpdateTargetPose;
+// import frc.robot.commands.shooter.UpdateTargetPose;
 
 public class VisionLEDs extends SubsystemBase {
   /**
