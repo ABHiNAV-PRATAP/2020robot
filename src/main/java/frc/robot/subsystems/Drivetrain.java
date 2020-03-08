@@ -16,6 +16,7 @@ import com.playingwithfusion.CANVenom.BrakeCoastMode;
 
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.SPI.Port;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
@@ -33,6 +34,8 @@ public class Drivetrain extends SubsystemBase {
   DifferentialDriveOdometry odometry;
   private AHRS gyro;
   private boolean flipped = false;
+
+  DifferentialDrive drive;
   /**
    * Creates a new Drivetrain.
    */
@@ -52,6 +55,8 @@ public class Drivetrain extends SubsystemBase {
     
     resetEncoders();
     resetGyro();
+
+    drive = new DifferentialDrive(leftMotors, rightMotors);
   }
 
   public void arcadeDrive(double throttle, double turn) {
@@ -75,6 +80,14 @@ public class Drivetrain extends SubsystemBase {
       leftMotors.set(-rightValue);
       rightMotors.set(-leftValue);
     }
+  }
+
+  public void CurvatureDrive(double xSpeed, double zRotation, boolean isQuickTurn)
+  {
+    if (!flipped)
+      drive.curvatureDrive(xSpeed, zRotation, isQuickTurn);
+    else
+      drive.curvatureDrive(-xSpeed, -zRotation, isQuickTurn);
   }
 
   // public void setDriveMotorVoltage(double leftVoltage, double rightVoltage)

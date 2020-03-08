@@ -7,25 +7,28 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.auto.EightBall;
 import frc.robot.commands.auto.SixBall;
 import frc.robot.commands.drivetrain.ArcadeDrive;
+import frc.robot.commands.drivetrain.CuravtureDrive;
 import frc.robot.commands.drivetrain.FlipDrivetrain;
 import frc.robot.commands.drivetrain.PIDRotateAngle;
 import frc.robot.commands.intake.IntakeCell;
 import frc.robot.commands.intake.OuttakeCell;
 import frc.robot.commands.shooter.Shoot;
-import frc.robot.commands.shooter.TeleopVisionAssistedShoot;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.LimelightVision;
+import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.VisionLEDs;
 
@@ -43,6 +46,10 @@ public class RobotContainer {
 
   private final Shooter shooter = new Shooter();
 
+  private final LimelightVision limelight = new LimelightVision();
+
+  private final Pneumatics pneumatics = new Pneumatics();
+
   private Joystick driveJoystick = new Joystick(Constants.kDriveJoystickPort);
 
   private JoystickButton shoot9020 = new JoystickButton(driveJoystick, 12);
@@ -53,8 +60,10 @@ public class RobotContainer {
 
 
   private final JoystickButton align = new JoystickButton(driveJoystick, 8);
+
+  // private final JoystickButton outreach = new JoystickButton(driveJoystick, 11);
   
-//  private final JoystickButton flipDT = new JoystickButton(driveJoystick, 12);
+ private final JoystickButton flipDT = new JoystickButton(driveJoystick, 6);
   
   private final JoystickButton shoot = new JoystickButton(driveJoystick, 1);
   //private final JoystickButton rotate = new JoystickButton(driveJoystick, 10);
@@ -63,8 +72,13 @@ public class RobotContainer {
 
   private final JoystickButton intakeCell = new JoystickButton(driveJoystick, 3);
   private final JoystickButton outtakeCell = new JoystickButton(driveJoystick, 4);
-
+  
   private final VisionLEDs leds = new VisionLEDs();
+
+  private final JoystickButton compressorOff = new JoystickButton(driveJoystick, 11);
+  private final JoystickButton compressorOn = new JoystickButton(driveJoystick, 9);
+
+  //public final DoubleSolenoid sol = new DoubleSolenoid(0, 1);
 
   // private final XboxController controller = new XboxController(1);
 
@@ -74,6 +88,8 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+
+
 
     autonomousTrajectories = new SendableChooser<>();
 
@@ -85,14 +101,8 @@ public class RobotContainer {
     //   )
     // );
     drivetrain.setDefaultCommand(
-      new ArcadeDrive(
-        drivetrain,
-        () -> -driveJoystick.getY(),
-        () -> driveJoystick.getX(),
-        () -> driveJoystick.getThrottle()
-      )
-    );
-    
+      new CuravtureDrive(drivetrain, () -> -driveJoystick.getY(), () ->driveJoystick.getX(), () -> false, () -> driveJoystick.getThrottle()));
+
     // leds.setDefaultCommand(
     //   new UpdateTargetPose(
     //     shooter, 
@@ -144,12 +154,17 @@ public class RobotContainer {
     // () -> shooter.bottomSetpointShuffleboard.getDouble(0), leds));
     
     // shoot.whileHeld(new PIDRotateAngle(drivetrain, shooter, leds).andThen(new TeleopVisionAssistedShoot(shooter)));
-    shoot9015.whileHeld(new Shoot(shooter, () -> 11.5, () -> 90, leds));
-    shoot9020.whileHeld(new Shoot(shooter, () -> 20, () -> 90, leds));
-    shoot9010.whileHeld(new Shoot(shooter, () -> 10, () -> 90, leds));
-    shoot.whileHeld(new Shoot(shooter, () -> 13, () -> 90, leds));
+    shoot9015.whileHeld(new Shoot(shooter, () -> 11.5, () -> 90, leds, pneumatics));
+    shoot9020.whileHeld(new Shoot(shooter, () -> 20, () -> 90, leds, pneumatics));
+    shoot9010.whileHeld(new Shoot(shooter, () -> 10, () -> 90, leds, pneumatics));
+    shoot.whileHeld(new Shoot(shooter, () -> 13, () -> 90, leds, pneumatics));
+
+    flipDT.whenPressed(new FlipDrivetrain(drivetrain));
     
-    servoTest.whileHeld(new Shoot(shooter, () -> 0, () -> 0, leds));
+    compressorOff.whenPressed(new InstantCommand(pneumatics::TurnOffCompressor, pneumatics));
+    compressorOn.whenPressed(new InstantCommand(pneumatics::TurnOnCompressor, pneumatics));
+
+    servoTest.whileHeld(new Shoot(shooter, () -> 0, () -> 0, leds, pneumatics));
     // rotate.whenPressed(new TurnToAngle(drivetrain, 180));
     // rotate.whenPressed(new UpdateTargetPose(shooter, leds).andThen(new PIDRotateAngle(drivetrain, shooter, leds)));
     // rotate.whileHeld(

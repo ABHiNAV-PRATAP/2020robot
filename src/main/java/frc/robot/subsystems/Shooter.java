@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.util.vision.Interpolator;
 import frc.util.vision.ShooterProfile;
 import frc.util.vision.VisionTargetPose2d;
@@ -84,7 +85,7 @@ public class Shooter extends SubsystemBase {
   NetworkTableEntry yawToTarget = tab.add("yaw", yaw).withWidget(BuiltInWidgets.kTextView).getEntry();
 
   NetworkTableInstance table = NetworkTableInstance.getDefault();
-  NetworkTable cameraTable = table.getTable("chameleon-vision").getSubTable("infuzed-ps3");
+  NetworkTable limelight = table.getTable("limelight");
   /**
    * Creates a new Shooter.
    */
@@ -145,28 +146,37 @@ public class Shooter extends SubsystemBase {
     return interpolator.interpolate(distance);
   }
 
-  public VisionTargetPose2d getTargetPose2d() {
-    if (!cameraTable.getEntry("isValid").getBoolean(false)) {
-      System.out.println("Invalid target");
-      return null;
-    }
-    return new VisionTargetPose2d(
-      cameraTable.getEntry("targetPitch").getDouble(0.0),
-      cameraTable.getEntry("targetYaw").getDouble(0.0),
-      cameraTable.getEntry("targetArea").getDouble(0.0)
-    );
+  // public VisionTargetPose2d getTargetPose2d() {
+  //   if (!cameraTable.getEntry("isValid").getBoolean(false)) {
+  //     System.out.println("Invalid target");
+  //     return null;
+  //   }
+  //   return new VisionTargetPose2d(
+  //     cameraTable.getEntry("targetPitch").getDouble(0.0),
+  //     cameraTable.getEntry("targetYaw").getDouble(0.0),
+  //     cameraTable.getEntry("targetArea").getDouble(0.0)
+  //   );
+  // }
+
+  public double getArea()
+  {
+    return limelight.getEntry("ta").getDouble(6908);
   }
 
-  public VisionTargetPose3d getTargetPose3d() {
-    if (!cameraTable.getEntry("isValid").getBoolean(false)) {
-      System.out.println("Is not valid");
-      return null;
-    }
-    return new VisionTargetPose3d(
-      cameraTable.getEntry("targetPose").getDoubleArray(
-        new Double[] {0.0, 0.0, 0.0}
-      )
-    );
+  public double getHorizontalOffset() {
+    return limelight.getEntry("tx").getDouble(6908);
+  }
+
+  // public VisionTargetPose3d getTargetPose3d() {
+  //   if (!cameraTable.getEntry("isValid").getBoolean(false)) {
+  //     System.out.println("Is not valid");
+  //     return null;
+  //   }
+  //   return new VisionTargetPose3d(
+  //     cameraTable.getEntry("targetPose").getDoubleArray(
+  //       new Double[] {0.0, 0.0, 0.0}
+  //     )
+  //   );
 
     // if(currentTargetPose3d == null) {
     //   System.out.println("null object");
@@ -183,82 +193,79 @@ public class Shooter extends SubsystemBase {
     // System.out.println("Temp: " + temp);
 
     // return temp;
+  // }
+
+  // public boolean setTargetPose2d(VisionTargetPose2d targetPose2d) {
+  //   // System.out.println("Setting target 2d");
+  //   if(targetPose2d == null) {
+  //     return false;
+  //   }
+  //   currentTargetPose2d = targetPose2d;
+  //   return true;
+  // }
+
+  // public boolean setTargetPose3d(VisionTargetPose3d targetPose3d) {
+  //   if(targetPose3d == null) {
+  //     return false;
+  //   }
+  //   currentTargetPose3d = targetPose3d;
+  //   return true;
+  // }
+
+  // public boolean hasValidTargetPose2d() {
+  //   return currentTargetPose2d != null;
+  // }
+
+  // public boolean hasValidTargetPose3d() {
+  //   return currentTargetPose3d != null;
+  // }
+
+  // public void resetTargetPose2d() {
+  //   currentTargetPose2d = null;
+  // }
+
+  // public void resetTargetPose3d() {
+  //   currentTargetPose3d = null;
+  // }
+
+  public Double getDistanceToTarget() {
+    if (getVerticalOffset() != 6908.0)
+      return (Constants.kTargetHeight - Constants.kCameraHeight) / (Math.tan(Constants.kCameraAngle + getVerticalOffset()));
+    else 
+      return 6908.0;
   }
 
-  public boolean setTargetPose2d(VisionTargetPose2d targetPose2d) {
-    // System.out.println("Setting target 2d");
-    if(targetPose2d == null) {
+  public double getVerticalOffset() {
+    return limelight.getEntry("ty").getDouble(6908.0);
+  }
+
+  public double getSkew() {
+    return limelight.getEntry("ts").getDouble(6908.0);
+  }
+
+  public boolean hasValidTargetPose2d()
+  {
+    if (getArea() == 6908.0)
+    {
       return false;
     }
-    currentTargetPose2d = targetPose2d;
-    return true;
-  }
-
-  public boolean setTargetPose3d(VisionTargetPose3d targetPose3d) {
-    if(targetPose3d == null) {
+    if (getDistanceToTarget() == 6908.0)
+    {
       return false;
     }
-    currentTargetPose3d = targetPose3d;
+    if (getVerticalOffset() == 6908.0)
+    {
+      return false;
+    }
+    if (getHorizontalOffset() == 6908)
+    {
+      return false;
+    }
+    if (getSkew() == 6908.0)
+    {
+      return false;
+    }
     return true;
-  }
-
-  public boolean hasValidTargetPose2d() {
-    return currentTargetPose2d != null;
-  }
-
-  public boolean hasValidTargetPose3d() {
-    return currentTargetPose3d != null;
-  }
-
-  public void resetTargetPose2d() {
-    currentTargetPose2d = null;
-  }
-
-  public void resetTargetPose3d() {
-    currentTargetPose3d = null;
-  }
-
-  public Double getXToTarget() {
-    Double[] temp =  cameraTable.getEntry("targetPose").getDoubleArray(new Double[] {0.0, 0.0, 0.0});
-    return temp[0];
-  }
-
-  public Double getYToTarget() {
-    if(currentTargetPose3d == null) {
-      return 0.0;
-    } 
-    return currentTargetPose3d.getY();
-  }
-
-  public Double getAngleToTarget() {
-    if(currentTargetPose3d == null) {
-      return 0.0;
-    }
-    return currentTargetPose3d.getAngle();
-  }
-
-  public Double getPitchToTarget() {
-    if(currentTargetPose2d == null) {
-      return 0.0;
-    }
-    return currentTargetPose2d.getPitch();
-  }
-
-  public Double getYawToTarget() {
-    // if(currentTargetPose2d == null) {
-    //   return 0.0;
-    // }
-    // return currentTargetPose2d.getYaw();
-
-      return cameraTable.getEntry("targetYaw").getDouble(0);
-
-  }
-
-  public Double getAreaOfTarget() {
-    if(currentTargetPose2d == null) {
-      return 0.0;
-    }
-    return currentTargetPose2d.getArea();
   }
 
   @Override

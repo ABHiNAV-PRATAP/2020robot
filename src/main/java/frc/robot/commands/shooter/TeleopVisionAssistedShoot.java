@@ -38,7 +38,7 @@ public class TeleopVisionAssistedShoot extends CommandBase {
   @Override
   public void initialize() {
     // this.x = shooter.getTargetPose3d().getX();
-    x = shooter.getXToTarget();
+    x = shooter.getDistanceToTarget();
     leds.turnOn();
 
     // shooter.setTargetPose2d(shooter.getTargetPose2d());
@@ -83,7 +83,7 @@ public class TeleopVisionAssistedShoot extends CommandBase {
     // System.out.println("ctr: " + ctr);
     // if (shooter.hasValidTargetPose3d())
     // {
-      x = shooter.getXToTarget();
+      x = shooter.getDistanceToTarget();
 
     // shooter.setTargetPose2d(shooter.getTargetPose2d());
     // shooter.setTargetPose3d(shooter.getTargetPose3d());
@@ -134,14 +134,12 @@ public class TeleopVisionAssistedShoot extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if (!shooter.hasValidTargetPose3d())
+    if (!shooter.hasValidTargetPose2d())
     {
       return true;
     }
-    else
-    {
-      return false;
-    }
+
+    return false;
 
     // System.out.println(ctr >= timeout);
     // return ctr >= timeout;

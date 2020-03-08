@@ -10,9 +10,9 @@ package frc.robot.commands.drivetrain;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.VisionLEDs;
-import frc.util.MathUtil;
 
 public class PIDRotateAngle extends CommandBase {
 
@@ -21,7 +21,7 @@ public class PIDRotateAngle extends CommandBase {
   private final VisionLEDs leds;
   private double setpoint;
 
-  private final double kP = 0.03;// 0.025; // 0.06//0.0825;//0.075;// 0.0875; // 0.09; //0.1; // 0.1125;//0.125; //0.15;
+  private final double kP = 0.022;// 0.03;// 0.025; // 0.06//0.0825;//0.075;// 0.0875; // 0.09; //0.1; // 0.1125;//0.125; //0.15;
   private final double kD = 0.00215;//0.002; //0.011;// 0.009875;// 0.00975;
   // Use 0.0825 & 0.00975 for drivetrain rotation
 
@@ -57,15 +57,16 @@ public class PIDRotateAngle extends CommandBase {
   @Override
   public void execute() {
     // System.out.println("Yaw error: " + shooter.getYawToTarget());
-      shooter.setTargetPose2d(shooter.getTargetPose2d());
-      shooter.setTargetPose3d(shooter.getTargetPose3d());
-      error = -shooter.getYawToTarget();
+      // shooter.setTargetPose2d(shooter.getTargetPose2d());
+      // shooter.setTargetPose3d(shooter.getTargetPose3d());
+      error = -shooter.getHorizontalOffset();
+      //error = 
       // error = - shooter.cameraTable.getEntry("targetYaw").getDouble(0.0);
       // System.out.println("error: " + error);
       double output = (kP * error) + (kD * (error - previousError) / Constants.kDT);
       drivetrain.arcadeDrive(0, -output);
       previousError = error;
-      System.out.println("Yaw error: " + shooter.getYawToTarget());
+      System.out.println("Yaw error: " + shooter.getHorizontalOffset());
   }
 
   // Called once the command ends or is interrupted.
