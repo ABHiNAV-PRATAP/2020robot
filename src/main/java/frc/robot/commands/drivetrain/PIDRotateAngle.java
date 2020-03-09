@@ -21,12 +21,14 @@ public class PIDRotateAngle extends CommandBase {
   private final VisionLEDs leds;
   private double setpoint;
 
-  private final double kP = 0.022;// 0.03;// 0.025; // 0.06//0.0825;//0.075;// 0.0875; // 0.09; //0.1; // 0.1125;//0.125; //0.15;
-  private final double kD = 0.00215;//0.002; //0.011;// 0.009875;// 0.00975;
+  private final double kP = 0.13; // 0.15;// 0.03;// 0.025; // 0.06//0.0825;//0.075;// 0.0875; // 0.09; //0.1; // 0.1125;//0.125; //0.15;
+  private final double kD = 0.013; // 0.01;//0.002; //0.011;// 0.009875;// 0.00975;
+  private final double kI = 0; //0.005;
   // Use 0.0825 & 0.00975 for drivetrain rotation
 
   private double previousError = 0;
   private double error = 0;
+  private double cumError = 0;
 
   private int stopAccumulator;
   
@@ -49,6 +51,9 @@ public class PIDRotateAngle extends CommandBase {
     System.out.println("Started Rotate");
     stopAccumulator = 0;
     setpoint = 0;
+    cumError = 0;
+    previousError = 0;
+    error = 0;
     leds.turnOn();
     System.out.println("Beginning vision rotate");
   }
@@ -63,7 +68,8 @@ public class PIDRotateAngle extends CommandBase {
       //error = 
       // error = - shooter.cameraTable.getEntry("targetYaw").getDouble(0.0);
       // System.out.println("error: " + error);
-      double output = (kP * error) + (kD * (error - previousError) / Constants.kDT);
+      cumError += error * Constants.kDT;
+      double output = (kP * error) + (kD * (error - previousError) / Constants.kDT) + (kI * cumError);
       drivetrain.arcadeDrive(0, -output);
       previousError = error;
       System.out.println("Yaw error: " + shooter.getHorizontalOffset());
@@ -84,10 +90,10 @@ public class PIDRotateAngle extends CommandBase {
       return true;
     }
     
-    if(Math.abs(error)<=2){
+    if(Math.abs(error)<=.1){
       stopAccumulator++;
     }
-    else if(Math.abs(error)>=2){
+    else if(Math.abs(error)>=.1){
       stopAccumulator = 0;
     }
     return stopAccumulator>=10;

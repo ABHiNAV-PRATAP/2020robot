@@ -48,8 +48,7 @@ public class Drivetrain extends SubsystemBase {
     leftMotors = new SpeedControllerGroup(leftDriveTalon, leftDriveVenom);
     rightMotors = new SpeedControllerGroup(rightDriveTalon, rightDriveVenom);
 
-    rightDriveTalon.setInverted(true);
-    rightDriveVenom.setInverted(true);
+    rightMotors.setInverted(true);
 
     gyro = new AHRS(Port.kMXP);
     

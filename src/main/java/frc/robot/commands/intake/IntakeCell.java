@@ -9,23 +9,32 @@ package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Pneumatics;
+import frc.robot.subsystems.Shooter;
 
 public class IntakeCell extends CommandBase {
 
   private final Intake intake;
+  private final Pneumatics pneumatics;
+  private final Shooter shooter;
 
   /**
    * Creates a new IntakeCell.
    */
-  public IntakeCell(Intake intake) {
+  public IntakeCell(Intake intake, Shooter shooter, Pneumatics pneumatics) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.intake = intake;
+    this.shooter = shooter;
+    this.pneumatics = pneumatics;
     addRequirements(intake);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    shooter.servoClose();
+    pneumatics.CloseSolenoid();
+    
   }
 
   // Called every time the scheduler runs while the command is scheduled.

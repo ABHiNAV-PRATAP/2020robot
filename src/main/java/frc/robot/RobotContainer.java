@@ -100,9 +100,10 @@ public class RobotContainer {
     //     () -> -controller.getY(Hand.kRight)
     //   )
     // );
-    drivetrain.setDefaultCommand(
-      new CuravtureDrive(drivetrain, () -> -driveJoystick.getY(), () ->driveJoystick.getX(), () -> false, () -> driveJoystick.getThrottle()));
+    // drivetrain.setDefaultCommand(
+    //   new CuravtureDrive(drivetrain, () -> -driveJoystick.getY(), () ->driveJoystick.getX(), () -> false, () -> driveJoystick.getThrottle()));
 
+    drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain, () -> -driveJoystick.getY(), () -> driveJoystick.getX(), () -> driveJoystick.getThrottle()));
     // leds.setDefaultCommand(
     //   new UpdateTargetPose(
     //     shooter, 
@@ -156,7 +157,8 @@ public class RobotContainer {
     // shoot.whileHeld(new PIDRotateAngle(drivetrain, shooter, leds).andThen(new TeleopVisionAssistedShoot(shooter)));
     shoot9015.whileHeld(new Shoot(shooter, () -> 11.5, () -> 90, leds, pneumatics));
     shoot9020.whileHeld(new Shoot(shooter, () -> 20, () -> 90, leds, pneumatics));
-    shoot9010.whileHeld(new Shoot(shooter, () -> 10, () -> 90, leds, pneumatics));
+    // shoot9010.whileHeld(new Shoot(shooter, () -> 10, () -> 90, leds, pneumatics));
+    shoot9010.whenPressed(new InstantCommand(pneumatics::TurnOffSolenoid, pneumatics));
     shoot.whileHeld(new Shoot(shooter, () -> 13, () -> 90, leds, pneumatics));
 
     flipDT.whenPressed(new FlipDrivetrain(drivetrain));
@@ -182,7 +184,7 @@ public class RobotContainer {
 
    //\ flipDT.whenPressed(new FlipDrivetrain(drivetrain));
 
-    intakeCell.whileHeld(new IntakeCell(intake));
+    intakeCell.whileHeld(new IntakeCell(intake, shooter, pneumatics));
     outtakeCell.whileHeld(new OuttakeCell(intake));
 
   }

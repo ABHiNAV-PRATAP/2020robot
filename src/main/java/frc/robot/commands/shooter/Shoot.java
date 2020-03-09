@@ -39,7 +39,7 @@ public class Shoot extends CommandBase {
   @Override
   public void initialize() {
     System.out.println("Started Shoot");
-    pneumatics.CloseSolenoid();
+    // pneumatics.CloseSolenoid();
     //shooter.setServoAngle(60);
     // leds.turnOn();
     // shooter.tpid.setTolerance(1);
@@ -56,6 +56,7 @@ public class Shoot extends CommandBase {
       if(MathUtil.withinTolerance(tv, tsp, 3)) {
         shooter.servoOpen();
         pneumatics.OpenSolenoid();
+        //pneumatics.TurnOffSolenoid();
       }
       shooter.tpid.setSetpoint(tsp);
       shooter.bpid.setSetpoint(bsp);
@@ -73,8 +74,8 @@ public class Shoot extends CommandBase {
   public void end(boolean interrupted) {
     shooter.setTopMotorVoltage(0);
     shooter.setBottomMotorVoltage(0);
-    shooter.servoClose();
-    pneumatics.CloseSolenoid();
+    // shooter.servoClose();
+    // pneumatics.CloseSolenoid();
     // leds.turnOff();
   }
 
