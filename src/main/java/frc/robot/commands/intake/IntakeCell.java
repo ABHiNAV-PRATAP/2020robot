@@ -41,6 +41,7 @@ public class IntakeCell extends CommandBase {
   @Override
   public void execute() {
     intake.setValue(1); 
+    
     // change this if needed to const 
   }
 

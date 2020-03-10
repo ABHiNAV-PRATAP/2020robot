@@ -16,7 +16,7 @@ public class Pneumatics extends SubsystemBase {
   
   Compressor compressor = new Compressor(0);
 
-  DoubleSolenoid sol = new DoubleSolenoid(0, 1);
+  DoubleSolenoid sol = new DoubleSolenoid(1, 0);
   
   /**
    * Creates a new Pneumatics.

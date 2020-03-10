@@ -16,6 +16,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
@@ -59,7 +60,9 @@ public class Shooter extends SubsystemBase {
 
   CANSparkMax topMotor;
   CANSparkMax bottomMotor;
-  Servo servo = new Servo(0);
+  Servo servo = new Servo(10);
+  PWM agitator = new PWM(0);
+
   public PIDController tpid = new PIDController(tkP, tkI, tkD);
   public SimpleMotorFeedforward tff = new SimpleMotorFeedforward(tkS, tkV, tkA);
   public PIDController bpid = new PIDController(bkP, bkI, bkD);
@@ -97,7 +100,9 @@ public class Shooter extends SubsystemBase {
     topMotor.getEncoder().setPosition(0);
     bottomMotor.getEncoder().setPosition(0);
 
-    servoClose();
+    agitator.setBounds(2, 1.52, 1.5, 1.48, 1.0);
+
+    // servoClose();
 
     interpolator = new Interpolator(
       // Add and modify these profiles to match the experimental data we collect
@@ -257,7 +262,7 @@ public class Shooter extends SubsystemBase {
     {
       return false;
     }
-    if (getHorizontalOffset() == 6908)
+    if (getHorizontalOffset() == 6908.0)
     {
       return false;
     }
@@ -273,6 +278,8 @@ public class Shooter extends SubsystemBase {
     // System.out.println("Get x to target: " + getXToTarget());
     // x = getXToTarget();
     // yaw = getYawToTarget();
+
+    // agitator.setSpeed(1);
 
     System.out.println("Yaw to target: " + getHorizontalOffset());
 
