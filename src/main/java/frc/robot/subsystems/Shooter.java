@@ -68,6 +68,7 @@ public class Shooter extends SubsystemBase {
   public PIDController bpid = new PIDController(bkP, bkI, bkD);
   public SimpleMotorFeedforward bff = new SimpleMotorFeedforward(bkS, bkV, bkA);
   public ShuffleboardTab tab = Shuffleboard.getTab("Shooter");
+  NetworkTableEntry distance = tab.add("Distance", 6908).withWidget(BuiltInWidgets.kTextView).getEntry();
   NetworkTableEntry topMotorVoltage = tab.add("Top Motor Voltage", 0).withWidget(BuiltInWidgets.kVoltageView).withProperties(Map.of("Min", -12, "Max", 12, "Center", 0, "Number of Tick Marks", 12)).getEntry();
   NetworkTableEntry bottomMotorVoltage = tab.add("Bottom Motor Voltage", 0).withWidget(BuiltInWidgets.kVoltageView).withProperties(Map.of("Min", -12, "Max", 12, "Center", 0, "Number of Tick Marks", 12)).getEntry();
   NetworkTableEntry topMotorVelocity = tab.add("t vel", 0).withWidget(BuiltInWidgets.kTextView).withSize(2, 1).getEntry();
@@ -109,13 +110,17 @@ public class Shooter extends SubsystemBase {
       new ArrayList<ShooterProfile>() {{
         // add(new ShooterProfile(x (distance), top shooter speed, bottom shooter speed))
         // add(new ShooterProfile(3.32, 66, 90));
-        add(new ShooterProfile(3.32, 65, 90));
-        add(new ShooterProfile(3.39, 35, 90));
-        add(new ShooterProfile(3.71, 20, 90));
-        add(new ShooterProfile(3.80, 20, 90));
-        add(new ShooterProfile(3.96, 20, 90));
-        add(new ShooterProfile(4.71, 15, 90));
-        add(new ShooterProfile(5.09, 5, 90));
+        add(new ShooterProfile(230, 13, 80));
+        add(new ShooterProfile(297, 17, 80));
+        add(new ShooterProfile(312, 19, 80));
+        add(new ShooterProfile(375, 20, 80));
+        add(new ShooterProfile(171, 40, 80));
+        add(new ShooterProfile(126, 55, 80));
+        add(new ShooterProfile(249, 20, 80));
+        add(new ShooterProfile(232, 15, 80));
+        add(new ShooterProfile(238, 15, 80));
+        add(new ShooterProfile(212, 15, 80));
+        add(new ShooterProfile(308, 17.5, 80));
         // add(new ShooterProfile(5.09, 90, 0));
       }}
     );
@@ -235,7 +240,7 @@ public class Shooter extends SubsystemBase {
 
   public Double getDistanceToTarget() {
     if (getVerticalOffset() != 6908.0)
-      return (Constants.kTargetHeight - Constants.kCameraHeight) / (Math.tan(Constants.kCameraAngle + getVerticalOffset()));
+      return (Constants.kTargetHeight - Constants.kCameraHeight) / (Math.tan(Math.toRadians(Constants.kCameraAngle + getVerticalOffset())));
     else 
       return 6908.0;
   }
@@ -278,10 +283,9 @@ public class Shooter extends SubsystemBase {
     // System.out.println("Get x to target: " + getXToTarget());
     // x = getXToTarget();
     // yaw = getYawToTarget();
+    distance.setDouble(getDistanceToTarget());
 
-    // agitator.setSpeed(1);
-
-    System.out.println("Yaw to target: " + getHorizontalOffset());
+    //System.out.println("vertical to target: " + getVerticalOffset());
 
   }
   public double getTopVelocity() {

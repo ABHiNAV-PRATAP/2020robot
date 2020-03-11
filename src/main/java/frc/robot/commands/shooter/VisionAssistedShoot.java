@@ -8,91 +8,64 @@
 package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.Shooter;
 import frc.util.MathUtil;
+import frc.util.vision.ShooterProfile;
 
 public class VisionAssistedShoot extends CommandBase {
   private final Shooter shooter;
-  private final Intake intake;
-
-  private double timeout;
-  private int ctr;
-  private double topShooterSpeed;
-  private double bottomShooterSpeed;
+  private final Pneumatics pneumatics;
   /**
    * Creates a new VisionAssistedShoot.
    */
-  public VisionAssistedShoot(Shooter shooter, Intake intake, double timeout) {
-    this.shooter = shooter;
-    this.timeout = timeout;
-    this.intake = intake;
-    ctr = 0;
-    topShooterSpeed = 0;
-    bottomShooterSpeed = 0;
-    addRequirements(shooter);
+  public VisionAssistedShoot(Shooter shooter, Pneumatics pneumatics) {
     // Use addRequirements() here to declare subsystem dependencies.
+    this.shooter = shooter;
+    this.pneumatics = pneumatics;
+    addRequirements(shooter, pneumatics);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    System.out.println("timeout: " + timeout);
-    ctr = 0;
-    // System.out.println("Initializing VisionAssistedShoot command");
-    // ShooterProfile currentProfile = shooter.getShooterProfileFromInterpolator(shooter.getXToTarget());
-    // topShooterSpeed = currentProfile.getTopShooterSpeed();
-    // double x = shooter.getXToTarget();
-    // System.out.println("x: " + x);
-    // if(topShooterSpeed > 4) {
-    //   topShooterSpeed = 20;
-    // }
-    // else {
-    //   topShooterSpeed = -1182.5523*Math.pow(x, 3) + 13205.1580*Math.pow(x, 2) - 49074.4837*x + 60713.2697;
-    // }
-    topShooterSpeed = 12;
-    bottomShooterSpeed = 90;
-    //withTimeout(20);
-    // System.out.println("top: " + topShooterSpeed);
-    // System.out.println("bottom: " + bottomShooterSpeed);
+    pneumatics.TurnOffSolenoid();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // if (shooter.hasValidTargetPose3d())
-    // {
-      intake.setValue(-1);
-      ctr += 20;
-      System.out.println("ctr: " + ctr);
-      if(MathUtil.withinTolerance(shooter.getTopVelocity(), topShooterSpeed, 2.5)) {
+    System.out.println("Distance to target:" + shooter.getDistanceToTarget());
+    ShooterProfile currentProfile = shooter.getShooterProfileFromInterpolator(shooter.getDistanceToTarget());
+    double tsp = currentProfile.getTopShooterSpeed();
+    double bsp = currentProfile.getBottomShooterSpeed();
+      double tv = shooter.getTopVelocity();
+      double bv = shooter.getBottomVelocity();
+      if(MathUtil.withinTolerance(tv, tsp, 3)) {
         shooter.servoOpen();
+        pneumatics.OpenSolenoid();
+        //pneumatics.TurnOffSolenoid();
       }
-      shooter.tpid.setSetpoint(topShooterSpeed);
-      shooter.bpid.setSetpoint(bottomShooterSpeed);
-      double calctop = shooter.tpid.calculate(shooter.getTopVelocity());
-      double calcBot = shooter.bpid.calculate(shooter.getBottomVelocity());
-      shooter.setTopMotorVoltage(calctop + shooter.tff.calculate(topShooterSpeed));
-      shooter.setBottomMotorVoltage(calcBot + shooter.bff.calculate(bottomShooterSpeed));
-      if(ctr >= timeout) {
-        end(false);
-      // }
-    }
+      shooter.tpid.setSetpoint(tsp);
+      shooter.bpid.setSetpoint(bsp);
+      double calctop = shooter.tpid.calculate(tv);
+      double calcBot = shooter.bpid.calculate(bv);
+      // System.out.println(calcBot + shooter.bff.calculate(bsp));
+      shooter.setTopMotorVoltage(calctop + shooter.tff.calculate(tsp));
+      shooter.setBottomMotorVoltage(calcBot + shooter.bff.calculate(bsp));
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    shooter.servoClose();
-    shooter.stop();
-    intake.setValue(0);
-    
+    shooter.setTopMotorVoltage(0);
+    shooter.setBottomMotorVoltage(0);
+    pneumatics.TurnOffSolenoid();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    // System.out.println(ctr >= timeout);
-    return ctr >= timeout;
+    return false;
   }
 }

@@ -7,8 +7,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -17,14 +15,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.auto.SixBall;
 import frc.robot.commands.drivetrain.ArcadeDrive;
-import frc.robot.commands.drivetrain.CuravtureDrive;
 import frc.robot.commands.drivetrain.FlipDrivetrain;
 import frc.robot.commands.drivetrain.PIDRotateAngle;
 import frc.robot.commands.intake.IntakeCell;
 import frc.robot.commands.intake.OuttakeCell;
 import frc.robot.commands.shooter.Shoot;
+import frc.robot.commands.shooter.VisionAssistedShoot;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LimelightVision;
@@ -159,10 +156,13 @@ public class RobotContainer {
     shoot9020.whileHeld(new Shoot(shooter, () -> 20, () -> 90, leds, pneumatics));
     // shoot9010.whileHeld(new Shoot(shooter, () -> 10, () -> 90, leds, pneumatics));
     shoot9010.whenPressed(new InstantCommand(pneumatics::TurnOffSolenoid, pneumatics));
-    shoot.whileHeld(new Shoot(shooter, () -> 13, () -> 90, leds, pneumatics));
+    // shoot.whileHeld(new Shoot(shooter, () -> 13, () -> 90, leds, pneumatics));
+    shoot.whileHeld(new VisionAssistedShoot(shooter, pneumatics));
+    //shoot.whileHeld(new Shoot(shooter, () -> shooter.topSetpointShuffleboard.getDouble(0), () -> shooter.bottomSetpointShuffleboard.getDouble(0), leds, pneumatics));
 
     flipDT.whenPressed(new FlipDrivetrain(drivetrain));
     
+  
     compressorOff.whenPressed(new InstantCommand(pneumatics::TurnOffCompressor, pneumatics));
     compressorOn.whenPressed(new InstantCommand(pneumatics::TurnOnCompressor, pneumatics));
 
@@ -195,6 +195,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return new SixBall(drivetrain, intake, shooter, leds);
+    return null;
   }
 }

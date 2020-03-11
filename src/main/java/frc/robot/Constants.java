@@ -61,9 +61,9 @@ public final class Constants {
     public static final double kDistancePerTick = Constants.kWheelDiameterMeters * Math.PI / kTicksPerRotation;
 
 
-    public static final double  kCameraHeight = 0;
-    public static final double  kCameraAngle = 0;
-    public static final double kTargetHeight = 0;
+    public static final double  kCameraHeight = 22.625;
+    public static final double  kCameraAngle = 7;
+    public static final double kTargetHeight = 89.75;
     // Universal Constants
     public static final double kDT = 0.02; // 20 ms = 0.02 s
 
