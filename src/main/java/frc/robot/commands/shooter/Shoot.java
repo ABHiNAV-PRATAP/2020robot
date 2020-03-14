@@ -14,7 +14,6 @@ import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.VisionLEDs;
 import frc.util.MathUtil;
 
 public class Shoot extends CommandBase {
@@ -22,16 +21,14 @@ public class Shoot extends CommandBase {
   private final DoubleSupplier topSetpoint;
   private final DoubleSupplier bottomSetpoint;
   private final Pneumatics pneumatics;
-  private final VisionLEDs leds;
   /**
    * Creates a new Shoot.
    */
-  public Shoot(Shooter shooter, DoubleSupplier topSetpoint, DoubleSupplier bottomSetpoint, VisionLEDs leds, Pneumatics pneumatics) {
+  public Shoot(Shooter shooter, DoubleSupplier topSetpoint, DoubleSupplier bottomSetpoint, Pneumatics pneumatics) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.shooter = shooter;
     this.topSetpoint = topSetpoint;
     this.bottomSetpoint = bottomSetpoint;
-    this.leds = leds;
     this.pneumatics = pneumatics;
     addRequirements(shooter);
   }

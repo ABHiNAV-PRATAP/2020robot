@@ -12,13 +12,11 @@ import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.VisionLEDs;
 
 public class PIDRotateAngle extends CommandBase {
 
   private final Drivetrain drivetrain;
   private final Shooter shooter;
-  private final VisionLEDs leds;
   private double setpoint;
 
   private final double kP = 0.13; // 0.15;// 0.03;// 0.025; // 0.06//0.0825;//0.075;// 0.0875; // 0.09; //0.1; // 0.1125;//0.125; //0.15;
@@ -36,11 +34,10 @@ public class PIDRotateAngle extends CommandBase {
   /**
    * Creates a new PIDRotateAngle.
    */
-  public PIDRotateAngle(Drivetrain drivetrain, Shooter shooter, VisionLEDs leds) {
+  public PIDRotateAngle(Drivetrain drivetrain, Shooter shooter) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.drivetrain = drivetrain;
     this.shooter = shooter;
-    this.leds = leds;
     // addRequirements(drivetrain);
     // addRequirements(shooter);
   }
@@ -54,7 +51,6 @@ public class PIDRotateAngle extends CommandBase {
     cumError = 0;
     previousError = 0;
     error = 0;
-    leds.turnOn();
     System.out.println("Beginning vision rotate");
   }
 
@@ -90,10 +86,10 @@ public class PIDRotateAngle extends CommandBase {
       return true;
     }
     
-    if(Math.abs(error)<=.1){
+    if(Math.abs(error)<=1){
       stopAccumulator++;
     }
-    else if(Math.abs(error)>=.1){
+    else if(Math.abs(error)>=1){
       stopAccumulator = 0;
     }
     return stopAccumulator>=10;

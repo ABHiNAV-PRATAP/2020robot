@@ -24,6 +24,7 @@ public class Pneumatics extends SubsystemBase {
   public Pneumatics() {
     compressor.start();
     TurnOffSolenoid();
+    CloseSolenoid();
   }
 
   public void OpenSolenoid()

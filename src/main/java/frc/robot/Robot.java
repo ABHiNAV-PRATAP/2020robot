@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     m_robotContainer.drivetrain.resetGyro();
-    CameraServer.getInstance().startAutomaticCapture();
+    // CameraServer.getInstance().startAutomaticCapture();
   }
 
   /**

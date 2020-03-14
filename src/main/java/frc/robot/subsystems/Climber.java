@@ -7,44 +7,31 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.PWMTalonSRX;
+import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-// import frc.robot.commands.shooter.UpdateTargetPose;
 
-public class VisionLEDs extends SubsystemBase {
+public class Climber extends SubsystemBase {
   /**
-   * Creates a new VisionLEDs.
+   * Creates a new Climber.
    */
 
-  Solenoid led1 = new Solenoid(6);
-  Solenoid led2 = new Solenoid(7);
+  PWMTalonSRX climberWinch = new PWMTalonSRX(1);
+  PWMVictorSPX hookDeploy = new PWMVictorSPX(2);
 
-  public VisionLEDs() {
-    // turnOn();
-    turnOff();
-  }
+  public Climber() {
+    climberWinch.setInverted(true);
 
-  public void turnOn() {
-    setLED1(true);
-    setLED2(true);
   }
 
-  public void turnOff() {
-    setLED1(false);
-    setLED2(false);
+  public void setClimberWinchSpeed(double speed){
+    climberWinch.set(speed);
   }
 
-  public void setLED1(boolean on) {
-    led1.set(on);
-  }
-  
-  public void setLED2(boolean on) {
-    led2.set(on);
+  public void setHookDeploySpeed(double speed){
+    hookDeploy.set(speed);
   }
 
-  public boolean getLEDStatus() { 
-    return led1.get() || led2.get();    
-  }
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

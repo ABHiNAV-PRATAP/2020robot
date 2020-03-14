@@ -8,6 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -15,19 +16,22 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.climber.Climb;
 import frc.robot.commands.drivetrain.ArcadeDrive;
 import frc.robot.commands.drivetrain.FlipDrivetrain;
 import frc.robot.commands.drivetrain.PIDRotateAngle;
+import frc.robot.commands.drivetrain.TurnToAngle;
 import frc.robot.commands.intake.IntakeCell;
 import frc.robot.commands.intake.OuttakeCell;
 import frc.robot.commands.shooter.Shoot;
 import frc.robot.commands.shooter.VisionAssistedShoot;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LimelightVision;
 import frc.robot.subsystems.Pneumatics;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.VisionLEDs;
+import frc.robot.commands.SixBall;
 
 /**
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -47,7 +51,11 @@ public class RobotContainer {
 
   private final Pneumatics pneumatics = new Pneumatics();
 
+  private final Climber climber = new Climber();
+
   private Joystick driveJoystick = new Joystick(Constants.kDriveJoystickPort);
+
+  private XboxController controller = new XboxController(1);
 
   private JoystickButton shoot9020 = new JoystickButton(driveJoystick, 12);
   private JoystickButton shoot9015 = new JoystickButton(driveJoystick, 2);
@@ -70,7 +78,6 @@ public class RobotContainer {
   private final JoystickButton intakeCell = new JoystickButton(driveJoystick, 3);
   private final JoystickButton outtakeCell = new JoystickButton(driveJoystick, 4);
   
-  private final VisionLEDs leds = new VisionLEDs();
 
   private final JoystickButton compressorOff = new JoystickButton(driveJoystick, 11);
   private final JoystickButton compressorOn = new JoystickButton(driveJoystick, 9);
@@ -99,7 +106,7 @@ public class RobotContainer {
     // );
     // drivetrain.setDefaultCommand(
     //   new CuravtureDrive(drivetrain, () -> -driveJoystick.getY(), () ->driveJoystick.getX(), () -> false, () -> driveJoystick.getThrottle()));
-
+    climber.setDefaultCommand(new Climb(climber, () -> controller.getY(Hand.kLeft), () -> controller.getY(Hand.kRight)));
     drivetrain.setDefaultCommand(new ArcadeDrive(drivetrain, () -> -driveJoystick.getY(), () -> driveJoystick.getX(), () -> driveJoystick.getThrottle()));
     // leds.setDefaultCommand(
     //   new UpdateTargetPose(
@@ -143,8 +150,8 @@ public class RobotContainer {
     align.whileHeld(
       new PIDRotateAngle(
         drivetrain,
-        shooter,
-        leds
+        shooter
+        //leds
       )
     );
 
@@ -152,13 +159,13 @@ public class RobotContainer {
     // () -> shooter.bottomSetpointShuffleboard.getDouble(0), leds));
     
     // shoot.whileHeld(new PIDRotateAngle(drivetrain, shooter, leds).andThen(new TeleopVisionAssistedShoot(shooter)));
-    shoot9015.whileHeld(new Shoot(shooter, () -> 11.5, () -> 90, leds, pneumatics));
-    shoot9020.whileHeld(new Shoot(shooter, () -> 20, () -> 90, leds, pneumatics));
+    shoot9015.whileHeld(new Shoot(shooter, () -> 11.5, () -> 90, pneumatics));
+    shoot9020.whileHeld(new Shoot(shooter, () -> 20, () -> 90, pneumatics));
     // shoot9010.whileHeld(new Shoot(shooter, () -> 10, () -> 90, leds, pneumatics));
     shoot9010.whenPressed(new InstantCommand(pneumatics::TurnOffSolenoid, pneumatics));
     // shoot.whileHeld(new Shoot(shooter, () -> 13, () -> 90, leds, pneumatics));
     shoot.whileHeld(new VisionAssistedShoot(shooter, pneumatics));
-    //shoot.whileHeld(new Shoot(shooter, () -> shooter.topSetpointShuffleboard.getDouble(0), () -> shooter.bottomSetpointShuffleboard.getDouble(0), leds, pneumatics));
+    // shoot.whileHeld(new Shoot(shooter, () -> shooter.topSetpointShuffleboard.getDouble(0), () -> shooter.bottomSetpointShuffleboard.getDouble(0), leds, pneumatics));
 
     flipDT.whenPressed(new FlipDrivetrain(drivetrain));
     
@@ -166,7 +173,8 @@ public class RobotContainer {
     compressorOff.whenPressed(new InstantCommand(pneumatics::TurnOffCompressor, pneumatics));
     compressorOn.whenPressed(new InstantCommand(pneumatics::TurnOnCompressor, pneumatics));
 
-    servoTest.whileHeld(new Shoot(shooter, () -> 0, () -> 0, leds, pneumatics));
+    //servoTest.whileHeld(new Shoot(shooter, () -> 0, () -> 0, pneumatics));
+    servoTest.whenPressed(new TurnToAngle(drivetrain, 0));
     // rotate.whenPressed(new TurnToAngle(drivetrain, 180));
     // rotate.whenPressed(new UpdateTargetPose(shooter, leds).andThen(new PIDRotateAngle(drivetrain, shooter, leds)));
     // rotate.whileHeld(
@@ -195,6 +203,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return null;
+    return new SixBall(drivetrain, shooter, pneumatics, intake);
   }
 }

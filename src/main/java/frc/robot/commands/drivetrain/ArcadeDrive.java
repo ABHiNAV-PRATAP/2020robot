@@ -50,7 +50,7 @@ public class ArcadeDrive extends CommandBase {
     // System.out.println("X " + turn);
     // System.out.println("Y " + throttle);
 
-    speedMultiplier = Math.abs(throttle) < 0.1 ? 0 : speedMultiplier;
+    throttle = Math.abs(throttle) < 0.1 ? 0 : throttle;
 
     drivetrain.setDriveMotors(((throttle + turn) * speedMultiplier), ((throttle - turn) * speedMultiplier));
   }

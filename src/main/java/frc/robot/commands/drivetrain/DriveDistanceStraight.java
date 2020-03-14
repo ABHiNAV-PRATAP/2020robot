@@ -54,7 +54,7 @@ public class DriveDistanceStraight extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    intake.setValue(1);
+    intake.setValue(.5);
     distanceError = distanceSetpoint - (drivetrain.venomTicksToInches(drivetrain.getLeftEncoderDistance()) + drivetrain.venomTicksToInches(drivetrain.getRightEncoderDistance()) / 2.0);
     turnError = angleSetpoint - drivetrain.getHeadingAsAngle();
     // System.out.println("Error:" + turnError);

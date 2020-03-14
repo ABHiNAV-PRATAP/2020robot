@@ -110,17 +110,15 @@ public class Shooter extends SubsystemBase {
       new ArrayList<ShooterProfile>() {{
         // add(new ShooterProfile(x (distance), top shooter speed, bottom shooter speed))
         // add(new ShooterProfile(3.32, 66, 90));
-        add(new ShooterProfile(230, 13, 80));
-        add(new ShooterProfile(297, 17, 80));
-        add(new ShooterProfile(312, 19, 80));
-        add(new ShooterProfile(375, 20, 80));
-        add(new ShooterProfile(171, 40, 80));
-        add(new ShooterProfile(126, 55, 80));
-        add(new ShooterProfile(249, 20, 80));
-        add(new ShooterProfile(232, 15, 80));
-        add(new ShooterProfile(238, 15, 80));
-        add(new ShooterProfile(212, 15, 80));
-        add(new ShooterProfile(308, 17.5, 80));
+        add(new ShooterProfile(167, 40, 70));
+        add(new ShooterProfile(160, 45, 70));
+        add(new ShooterProfile(193, 20, 70));
+        add(new ShooterProfile(224, 11, 90));
+        add(new ShooterProfile(259, 9, 90));
+        add(new ShooterProfile(273, 10, 90));
+        add(new ShooterProfile(235, 11.5, 90));
+        add(new ShooterProfile(291, 11, 90));
+        add(new ShooterProfile(244, 10, 90));
         // add(new ShooterProfile(5.09, 90, 0));
       }}
     );
